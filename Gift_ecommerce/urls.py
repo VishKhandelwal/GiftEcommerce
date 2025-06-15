@@ -20,11 +20,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf import settings
 from shortlinks.views import redirect_short_url
+from django.shortcuts import redirect
+
+def home(request):
+    return redirect('/products/custombox/choose_box/')
+
 
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home), 
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
     path('products/', include(('products.urls', 'products'), namespace='products')),
     path('cart/', include('cart.urls', namespace='cart')),
