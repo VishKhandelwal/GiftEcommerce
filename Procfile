@@ -1,1 +1,1 @@
-web: gunicorn Gift_ecommerce.wsgi
+web: gunicorn GiftEcommerce.wsgi
