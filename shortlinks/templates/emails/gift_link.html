@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Your Gift Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            padding: 20px;
+            color: #333;
+        }
+        .email-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .gift-link {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Hello,</h2>
+        <p>🎉 Thanks for joining GiftBox!</p>
+        <p>Your exclusive gift link is ready. Click below to view your gift:</p>
+        <a href="{{ link }}" class="gift-link">View Your Gift 🎁</a>
+        <p>If the button doesn't work, copy and paste this link into your browser:</p>
+        <p><a href="{{ link }}">{{ link }}</a></p>
+        <p>Enjoy!<br>– The GiftBox Team</p>
+    </div>
+</body>
+</html>

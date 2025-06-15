@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Checkout</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>Qty</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in cart_items %}
+      <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>₹{{ item.product.price }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4>Total: ₹{{ total }}</h4>
+
+<!-- ✅ Delivery Address Form -->
+<form method="post">
+  {% csrf_token %}
+  <h5>Delivery Details</h5>
+
+  {{ form.non_field_errors }}
+
+  <div class="mb-2">
+    <label>Full Name</label>
+    {{ form.full_name }}
+  </div>
+  <div class="mb-2">
+    <label>Phone Number</label>
+    {{ form.phone_number }}
+  </div>
+  <div class="mb-2">
+    <label>Pincode</label>
+    {{ form.pincode }}
+  </div>
+  <div class="mb-2">
+    <label>City</label>
+    {{ form.city }}
+  </div>
+  <div class="mb-2">
+    <label>State</label>
+    {{ form.state }}
+  </div>
+  <div class="mb-2">
+    <label>Address</label>
+    {{ form.address }}
+  </div>
+
+  <button type="submit" class="btn btn-success w-100">Place Order</button>
+</form>
+
+{% endblock %}

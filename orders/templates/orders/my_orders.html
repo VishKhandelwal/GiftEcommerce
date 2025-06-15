@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>📟 My Orders</h2>
+
+{% if orders %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>Product</th>
+      <th>Image</th>
+      <th>Qty</th>
+      <th>Status</th>
+      <th>Expected Delivery</th>
+      <th>Tracking</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.order_id }}</td>
+      <td>{{ order.product.name }}</td>
+      <td><img src="{{ order.product.image.url }}" width="60" class="rounded"></td>
+      <td>{{ order.quantity }}</td>
+      <td>
+        <span class="badge {% if order.status == 'DELIVERED' %}bg-success{% elif order.status == 'CANCELLED' %}bg-danger{% elif order.status == 'DISPATCHED' %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+          {{ order.status }}
+        </span>
+      </td>
+      <td>{{ order.expected_delivery }}</td>
+      <td>
+        {% if order.tracking_link %}
+        <a href="{{ order.tracking_link }}" class="btn btn-sm btn-outline-primary" target="_blank">Track</a>
+        {% else %}—{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>You have not placed any orders yet.</p>
+{% endif %}
+{% endblock %}

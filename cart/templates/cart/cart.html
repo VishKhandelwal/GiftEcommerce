@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_extras %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your Cart</h2>
+
+    {% if grouped_cart %}
+        {% for category, items in grouped_cart.items %}
+            <h4 class="mt-4">{{ category }}</h4>
+            <div class="row">
+                {% for item in items %}
+                <div class="col-md-3">
+                    <div class="card mb-3">
+                        <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.name }}</h5>
+                            <p>Price: ₹{{ item.product.price }}</p>
+
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'cart:update_cart_item' item.id 'decrement' %}" class="btn btn-outline-secondary btn-sm">-</a>
+                                <span class="mx-2">{{ item.quantity }}</span>
+                                <a href="{% url 'cart:update_cart_item' item.id 'increment' %}" class="btn btn-outline-secondary btn-sm">+</a>
+                                <a href="{% url 'cart:remove_cart_item' item.id %}" class="btn btn-danger btn-sm ms-3">Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="row mt-5">
+            <div class="col-md-4 offset-md-8">
+                <div class="card p-3">
+                    <h4 class="mb-3">Subtotal</h4>
+                    <p>₹{{ cart_items|calc_subtotal }}</p>
+                    <hr>
+                    <a href="{% url 'products:choose_items' %}" class="btn btn-outline-dark w-100 mb-2">Continue Customizing</a>
+                    <a href="{% url 'products:magic_created' %}" class="btn btn-dark w-100">Proceed to Next Step</a>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

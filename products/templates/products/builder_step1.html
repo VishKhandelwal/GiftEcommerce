@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Customize Your Gift Box</h2>
+<p>(This is the starting step for customization like InfinityBox)</p>
+<form method="post">{% csrf_token %}
+    <!-- add customization fields later -->
+    <button type="submit" class="btn btn-warning">Next</button>
+</form>
+{% endblock %}

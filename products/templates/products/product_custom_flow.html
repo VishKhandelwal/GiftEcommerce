@@ -1,0 +1,68 @@
+<!-- templates/products/choose_box.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <div class="progress-bar-steps mb-5">
+        <div class="step active">
+            <div class="circle"></div>
+            <p>Step 1<br><strong><a href="{% url 'products:choose_box' %}">CHOOSE YOUR BOX COLOR</a></strong></p>
+        </div>
+        <div class="step">
+            <div class="circle"></div>
+            <p>Step 2<br><strong><a href="{% url 'products:choose_items' %}">CHOOSE YOUR ITEMS</a></strong></p>
+        </div>
+        <div class="step">
+            <div class="circle"></div>
+            <p>Step 3<br><strong><a href="{% url 'products:magic_created' %}">MAGIC CREATED</a></strong></p>
+        </div>
+    </div>
+
+    <!-- Title and Description -->
+    <h2><strong>STEP 1: CHOOSE YOUR INFINITY BOX</strong></h2>
+    <p class="lead">Begin your journey to create a unique and personalized gift in just four simple steps. Choose your preferred gift box color to get started.</p>
+
+    <!-- Your box color options go here -->
+</div>
+
+<!-- Style -->
+<style>
+    .progress-bar-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1000px;
+        margin: 0 auto 40px;
+        position: relative;
+    }
+    .progress-bar-steps::before {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #ddd;
+        z-index: 0;
+    }
+    .step {
+        text-align: center;
+        width: 25%;
+        z-index: 1;
+    }
+    .circle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        background: #fff;
+        border: 3px solid #000;
+    }
+    .step.active .circle {
+        background: #000;
+    }
+</style>
+{% endblock %}
+
+

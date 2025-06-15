@@ -1,0 +1,131 @@
+{# Step 1: choose_box.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container text-center my-5">
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-steps mb-5">
+        <div class="step active">
+            <div class="circle"></div>
+            <p>Step 1<br><strong><a href="{% url 'products:choose_box' %}">CHOOSE YOUR BOX COLOR</a></strong></p>
+        </div>
+        <div class="step">
+            <div class="circle"></div>
+            <p>Step 2<br><strong><a href="{% url 'products:choose_items' %}">CHOOSE YOUR ITEMS</a></strong></p>
+        </div>
+        <div class="step">
+            <div class="circle"></div>
+            <p>Step 3<br><strong><a href="{% url 'products:magic_created' %}">MAGIC CREATED</a></strong></p>
+        </div>
+    </div>
+
+    <!-- Step Heading -->
+    <h1>Select Your Infinity Box Color</h1>
+
+    <!-- Box Options -->
+    <div class="box-container">
+        <div class="box-option">
+            <img src="/media/products/Black Box Infinity.jpg" alt="Black Box">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="box_color" value="Black">
+                <button type="submit">Select Black Box</button>
+            </form>
+        </div>
+
+        <div class="box-option">
+            <img src="/media/products/White Box Infinity.jpg" alt="White Box">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="box_color" value="White">
+                <button type="submit">Select White Box</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Step Style -->
+<style>
+    .progress-bar-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1000px;
+        margin: 0 auto 40px;
+        position: relative;
+    }
+    .progress-bar-steps::before {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #ddd;
+        z-index: 0;
+    }
+    .step {
+        text-align: center;
+        width: 33%;
+        z-index: 1;
+    }
+    .circle {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        background: #fff;
+        border: 3px solid #000;
+    }
+    .step.active .circle {
+        background: #000;
+    }
+    .step a {
+        color: #000;
+        text-decoration: none;
+    }
+    .step a:hover {
+        text-decoration: underline;
+    }
+    .box-container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 50px;
+    }
+    .box-option {
+        border: 2px solid #ccc;
+        border-radius: 12px;
+        padding: 20px;
+        background-color: white;
+        transition: 0.3s;
+    }
+    .box-option:hover {
+        transform: scale(1.05);
+        border-color: #007bff;
+    }
+    .box-option img {
+        width: 300px;
+        height: auto;
+        border-radius: 10px;
+    }
+    .box-option form {
+        margin-top: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin-top: 8px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

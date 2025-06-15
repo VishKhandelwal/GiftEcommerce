@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+{% extends "base.html" %}
+{% load static %}
+
+    <!-- Progress Bar -->
+
+
+{% block content %}
+<div class="container">
+  <h2>Choose Your Items</h2>
+
+      <div class="row">
+        <!-- Cart Summary -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Your Cart</h5>
+                <div id="cart-items">
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between align-items-center mb-2" data-item-id="{{ item.product.id }}">
+                        <div>
+                            <strong>{{ item.product.name }}</strong><br>
+                            ₹{{ item.product.price }} × {{ item.quantity }}
+                        </div>
+                        <div class="quantity-controls d-flex align-items-center gap-1" data-item-id="{{ item.product.id }}">
+                            <button class="btn btn-outline-secondary btn-sm btn-decrease">−</button>
+                            <span class="item-qty">{{ item.quantity }}</span>
+                            <button class="btn btn-outline-secondary btn-sm btn-increase">+</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No items in cart.</p>
+                    {% endfor %}
+                </div>
+                <hr>
+                <p><strong>Subtotal:</strong> <span id="cart-subtotal">₹{{ subtotal }}</span></p>
+                <a href="{% url 'products:magic_created' %}" class="btn btn-success">Next Step</a>
+            </div>
+        </div>
+
+  <!-- Filters -->
+
+
+
+<div class="row mt-4">
+  <!-- Left: Product Section -->
+  <div class="col-md-8">
+    <div id="category-buttons" class="mb-4">
+        <button class="filter-btn btn btn-outline-primary me-2" data-category="T-shirts">T-shirts</button>
+        <button class="filter-btn btn btn-outline-primary me-2" data-category="Notebooks">Notebooks</button>
+        <button class="filter-btn btn btn-outline-primary" data-category="Caps">Caps</button>
+    </div>
+  <div id="products" class="row">
+    {% csrf_token %}
+    
+    <!-- Red Cap -->
+    <div class="col-md-3 mb-4 product-card" data-category="Caps">
+      <div class="card h-100">
+        <img src="/media/products/Cap.jpg" class="card-img-top" alt="Red Cap">
+        <div class="card-body text-center">
+          <h5 class="card-title">Red Cap</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 1 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Black NY Cap -->
+    <div class="col-md-3 mb-4 product-card" data-category="Caps">
+      <div class="card h-100">
+        <img src="/media/products/cap2.jpg" class="card-img-top" alt="Black NY Cap">
+        <div class="card-body text-center">
+          <h5 class="card-title">Black NY Cap</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 2 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Neon Notebook -->
+    <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
+      <div class="card h-100">
+        <img src="/media/products/NB1.jpg" class="card-img-top" alt="Neon Notebook">
+        <div class="card-body text-center">
+          <h5 class="card-title">Neon Notebook</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 3 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lined Notebook -->
+    <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
+      <div class="card h-100">
+        <img src="/media/products/NB2.jpg" class="card-img-top" alt="Lined Notebook">
+        <div class="card-body text-center">
+          <h5 class="card-title">Lined Notebook</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 4 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Black T-shirt -->
+    <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
+      <div class="card h-100">
+        <img src="/media/products/tshirt2.jpg" class="card-img-top" alt="Black T-shirt">
+        <div class="card-body text-center">
+          <h5 class="card-title">Black T-shirt</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 5 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orange T-shirt -->
+    <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
+      <div class="card h-100">
+        <img src="/media/products/tshirt 3.jpg" class="card-img-top" alt="Orange T-shirt">
+        <div class="card-body text-center">
+          <h5 class="card-title">Orange T-shirt</h5>
+          <form method="post" action="{% url 'products:add_to_cart' 6 %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Add to Cart</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // --- Quantity Update: + / - buttons ---
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("btn-increase") || e.target.classList.contains("btn-decrease")) {
+            const isIncrease = e.target.classList.contains("btn-increase");
+            const container = e.target.closest(".quantity-controls");
+            const itemId = container.dataset.itemId;
+            const action = isIncrease ? "increase" : "decrease";
+
+            updateQuantity(itemId, action);
+        }
+    });
+
+    function updateQuantity(itemId, action) {
+        fetch(`/products/update/${itemId}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
+                if (qtySpan) {
+                    qtySpan.textContent = data.quantity;
+                }
+
+                const subtotalSpan = document.getElementById("cart-subtotal");
+                if (subtotalSpan && data.subtotal !== undefined) {
+                    subtotalSpan.textContent = `₹${data.subtotal}`;
+                }
+
+                // Remove item if quantity is 0
+                if (data.quantity === 0) {
+                    const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
+                    if (itemBlock) itemBlock.remove();
+                }
+            }
+        });
+    }
+
+    // --- Product Category Filtering ---
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const productCards = document.querySelectorAll(".product-card");
+
+    function filterProducts(category) {
+        productCards.forEach(card => {
+            if (card.dataset.category === category) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const category = btn.dataset.category;
+            filterProducts(category);
+        });
+    });
+
+    // Default: show only T-shirts
+    filterProducts("T-shirts");
+});
+</script>
+{% endblock %}
+</body>
+</html>

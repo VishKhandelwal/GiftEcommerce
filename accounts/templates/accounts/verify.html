@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-center">✅ Verify OTP</h2>
+
+<form method="post" action="{% url 'accounts:verify' %}">
+  {% csrf_token %}
+  <input type="hidden" name="email" value="{{ email }}">
+  
+  <div class="mb-3">
+    <label>Enter OTP</label>
+    <input type="text" name="otp" class="form-control" required>
+  </div>
+
+
+  <div class="mb-3">
+    <label>Your Unique Code</label>
+    <input type="text" name= "unique_code" class="form-control">
+  </div>
+
+  
+  <button type="submit" class="btn btn-success w-100">Login</button>
+
+  {% if error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</form>
+
+<form method="post" action="{% url 'accounts:resend_otp' %}" class="text-center mt-3">
+  {% csrf_token %}
+  <input type="hidden" name="email" value="{{ email }}">
+  <button type="submit" class="btn btn-outline-secondary">Resend OTP</button>
+</form>
+
+<p class="text-muted text-center mt-2">Note: OTP is valid for 5 minutes.</p>
+{% endblock %}

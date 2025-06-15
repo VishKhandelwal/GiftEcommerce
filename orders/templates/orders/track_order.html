@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Track Your Order</h2>
+<form method="post">{% csrf_token %}
+    <input type="text" name="order_id" placeholder="Enter Order ID" class="form-control" required><br>
+    <input type="text" name="otp" placeholder="Enter OTP" class="form-control" required><br>
+    <button class="btn btn-primary">Track</button>
+</form>
+<br>
+{% if message %}<div class="alert alert-danger">{{ message }}</div>{% endif %}
+{% if order %}
+<div class="card">
+  <div class="card-body">
+    <h4>Order Status: {{ order.status }}</h4>
+    <p><strong>Expected Delivery:</strong> {{ order.expected_delivery }}</p>
+    <p><strong>Courier:</strong> {{ order.courier_name }}</p>
+    {% if order.tracking_link %}
+    <p><a href="{{ order.tracking_link }}" target=\"_blank\">View Courier Tracking</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Step Progress Bar -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-10">
+      <div class="d-flex justify-content-between align-items-center position-relative stepper">
+        {% for step, title in steps %}
+        <div class="text-center" style="flex: 1;">
+          <div class="step-circle {% if forloop.counter < 4 %}completed{% endif %} {% if forloop.counter == 4 %}current{% endif %}">
+            {% if forloop.counter < 4 %}
+              ✓
+            {% endif %}
+          </div>
+          <div class="step-label mt-2 fw-bold">Step {{ forloop.counter }}</div>
+          <div class="small">{{ title }}</div>
+        </div>
+        {% endfor %}
+        <div class="position-absolute top-50 start-0 w-100" style="z-index: -1;">
+          <hr class="border-2 border-dark m-0" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Magic Created Content -->
+  <div class="text-center mt-5">
+    <h5 class="text-secondary">MAGIC CREATED !</h5>
+    <h2 class="fw-bold mb-4">Building Your Infinity</h2>
+    <img src="/media/products/check green.jpeg" alt="Checkmark" width="100" class="my-4">
+    <a href="{% url 'products:checkout_view' %}" class="btn btn-dark px-5 py-2 mt-3">Checkout</a>
+  </div>
+</div>
+
+<style>
+  .stepper {
+    max-width: 100%;
+    position: relative;
+  }
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid #000;
+    color: #fff;
+    background-color: #000;
+  }
+  .step-circle.current {
+    background-color: #fff;
+    color: #000;
+  }
+  .step-label {
+    font-size: 14px;
+    color: #333;
+  }
+</style>
+
+{% endblock %}

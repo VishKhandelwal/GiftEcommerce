@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home | The Infinity Box{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1 class="display-5 fw-bold">Welcome to The Infinity Box 🎁</h1>
+    <p class="lead">Curated gifts for every occasion — beautifully wrapped with love.</p>
+    <a href="/products/" class="btn btn-primary btn-lg mt-3">Build Your Infinity</a>
+</div>
+
+<section class="mt-5">
+    <h2 class="mb-4 text-center">Popular Gift Categories</h2>
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <img src="/media/products/Black Box Infinity.jpg" class="card-img-top" alt="Black Box Infinity">
+                <div class="card-body">
+                    <h5 class="card-title"></h5>
+                    <p class="card-text">Make your day special with our handpicked gifts.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <img src="/media/products/White Box Infinity.jpg" class="card-img-top" alt="White Box Infinity">
+                <div class="card-body">
+                    <h5 class="card-title"></h5>
+                    <p class="card-text">Celebrate love with elegant and thoughtful presents.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
