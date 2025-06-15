@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-%e7g3_o!j629t5)aim2inxg(7zh9rbqy9n1*7&z=vna@pda*a+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['giftecommerce-cebo.onrender.com']
+ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
