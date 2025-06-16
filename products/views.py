@@ -29,7 +29,7 @@ def choose_box(request):
     return render(request, 'products/choose_box.html')
 
 def choose_items(request):
-    products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Caps'])
+    products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Water Bottles'])
 
     if request.method == "POST" and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         action = request.POST.get('action')
@@ -106,24 +106,34 @@ def cart_view(request):
 
 
 # Add to cart (via POST or direct call)
+from django.shortcuts import redirect, get_object_or_404
+from .models import Product
+from django.contrib import messages
+
 def add_to_cart(request, product_id):
-    if request.method == 'POST':
-        product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, id=product_id)
+    cart = request.session.get('cart', {})
 
-        cart_item, created = CartItem.objects.get_or_create(
-            user=request.user,
-            product=product,
-            defaults={'quantity': 1}
-        )
+    # Load product's category
+    product_category = product.category
 
-        if not created:
-            cart_item.quantity += 1
-            cart_item.save()
+    # Remove any existing item in the same category
+    items_to_remove = []
+    for pid in cart:
+        existing_product = Product.objects.get(id=pid)
+        if existing_product.category == product_category:
+            items_to_remove.append(pid)
 
-        return redirect('products:choose_items')  # ✅ This must be a valid view name or URL
+    for pid in items_to_remove:
+        del cart[pid]
 
-    # If not POST, redirect anyway (safety fallback)
-    return redirect('cart:cart')
+    # Add the new item
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+
+    request.session['cart'] = cart
+    messages.success(request, f"{product.name} added to cart. Replaced other {product.category} item(s).")
+    return redirect('products:Choose_items')  # or wherever your product list is shown
+
 
 # Update item quantity (increment/decrement)
 def update_cart_item(request, item_id, action):

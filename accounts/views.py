@@ -47,7 +47,7 @@ def send_otp_view(request):
         send_mail(
             subject="Your Login OTP and Unique Code",
             message=message,
-            from_email="GiftBox <vaishali.kh2310@gmail.com>",
+            from_email="<yashika@theinfinitybox.in>",
             recipient_list=[email],
             fail_silently=False,
         )
@@ -97,7 +97,7 @@ def login_view(request):
         send_mail(
             subject="Your Login OTP and Unique Code",
             message=message,
-            from_email="GiftBox <vaishali.kh2310@gmail.com>",
+            from_email="<yashika@theinfinitybox.in>",
             recipient_list=[email],
             fail_silently=False,
         )
