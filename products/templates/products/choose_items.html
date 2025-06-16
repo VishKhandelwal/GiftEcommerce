@@ -45,7 +45,7 @@
     {% csrf_token %}
     <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
       <div class="card h-100">
-        <img src="/media/products/bottle1.jpg" class="card-img-top" alt="Clear Bottle with White Cap">
+        <img src="/media/products/Bottle1.jpeg" class="card-img-top" alt="Clear Bottle with White Cap">
         <div class="card-body text-center">
           <h5 class="card-title">Clear Bottle</h5>
           <form method="post" action="{% url 'products:add_to_cart' 1 %}">
@@ -59,7 +59,7 @@
 <!-- Water Bottle 2 -->
     <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
       <div class="card h-100">
-        <img src="/media/products/bottle2.jpg" class="card-img-top" alt="Black Cap Water Bottle">
+        <img src="/media/products/Bottle2.jpeg" class="card-img-top" alt="Black Cap Water Bottle">
         <div class="card-body text-center">
           <h5 class="card-title">Bottle with Black Cap</h5>
           <form method="post" action="{% url 'products:add_to_cart' 2 %}">
@@ -73,7 +73,7 @@
 <!-- Water Bottle 3 -->
     <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
      <div class="card h-100">
-        <img src="/media/products/bottle3.jpg" class="card-img-top" alt="Square Water Bottle">
+        <img src="/media/products/Bottle3.jpeg" class="card-img-top" alt="Square Water Bottle">
         <div class="card-body text-center">
           <h5 class="card-title">Square Bottle</h5>
           <form method="post" action="{% url 'products:add_to_cart' 3 %}">
@@ -101,7 +101,7 @@
 <!-- Water Bottle 5 -->
     <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
       <div class="card h-100">
-        <img src="/media/products/bottle5.jpg" class="card-img-top" alt="Frosted Bottle">
+        <img src="/media/products/Bottle5.jpeg" class="card-img-top" alt="Frosted Bottle">
         <div class="card-body text-center">
           <h5 class="card-title">Frosted Bottle</h5>
           <form method="post" action="{% url 'products:add_to_cart' 5 %}">
@@ -194,6 +194,15 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.product-card {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.product-card.show {
+  opacity: 1;
+}
+</style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     // --- Quantity Update: + / - buttons ---
@@ -243,15 +252,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const productCards = document.querySelectorAll(".product-card");
 
     function filterCategory(category) {
-        productCards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            card.style.display = (category === cardCategory) ? 'block' : 'none';
-        });
+    productCards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        if (category === cardCategory) {
+            card.style.display = '';  // Show
+        } else {
+            card.style.display = 'none';  // Hide others
+        }
+      });
     }
 
     filterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const category = btn.dataset.category;
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
             filterCategory(category);
         });
     });
