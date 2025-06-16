@@ -8,7 +8,6 @@ app_name = 'products'
 
 
 urlpatterns = [
-    path('', views.product_custom_flow, name='prduct_custom_flow'),
     path('custombox/choose_box/', views.choose_box, name='choose_box'),
     path('custombox/choose_items/', views.choose_items, name='choose_items'),
     path('add-to-cart/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
