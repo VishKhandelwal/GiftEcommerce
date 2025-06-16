@@ -35,10 +35,11 @@
 
     <!-- Product Filters & Items -->
     <div class="col-md-8">
-      <div id="category-buttons" class="mb-4">
-        <button class="filter-btn" data-category="T-shirts">T-shirts</button>
-        <button class="filter-btn" data-category="Notebooks">Notebooks</button>
-        <button class="filter-btn" data-category="Water Bottles">Water Bottles</button>
+      <div class="text-center mb-4">
+        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="T-Shirts">T-Shirts</button>
+        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="Water Bottles"> Water Bottles</button>
+        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="Notebooks">Notebooks</button>
+      </div>
 
 
 
@@ -46,7 +47,7 @@
         {% csrf_token %}
 
         <!-- Water Bottles -->
-        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
+        <div class="col-md-4 mb-4 filter-item Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle1.jpeg" class="card-img-top" alt="Clear Bottle with White Cap">
             <div class="card-body text-center">
@@ -59,7 +60,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
+        <div class="col-md-4 mb-4 filter-item Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle2.jpeg" class="card-img-top" alt="Black Cap Water Bottle">
             <div class="card-body text-center">
@@ -72,7 +73,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
+        <div class="col-md-4 mb-4 filter-item Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle3.jpeg" class="card-img-top" alt="Square Water Bottle">
             <div class="card-body text-center">
@@ -85,7 +86,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
+        <div class="col-md-4 mb-4 filter-item Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle4.jpeg" class="card-img-top" alt="Slim Bottle with Handle">
             <div class="card-body text-center">
@@ -98,7 +99,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
+        <div class="col-md-4 mb-4 filter-item Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle5.jpeg" class="card-img-top" alt="Frosted Bottle">
             <div class="card-body text-center">
@@ -112,7 +113,7 @@
         </div>
 
         <!-- Notebooks -->
-        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
+        <div class="col-md-4 mb-4 filter-item Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook1.jpeg" class="card-img-top" alt="Minimalist Notebook">
             <div class="card-body text-center">
@@ -125,7 +126,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
+        <div class="col-md-4 mb-4 filter-item Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook2.jpeg" class="card-img-top" alt="Notebook2">
             <div class="card-body text-center">
@@ -138,7 +139,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
+        <div class="col-md-4 mb-4 filter-item Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook3.jpeg" class="card-img-top" alt="Notebook3">
             <div class="card-body text-center">
@@ -152,7 +153,7 @@
         </div>
 
         <!-- T-shirts -->
-        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
+        <div class="col-md-4 mb-4 filter-item T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirts1.jpeg" class="card-img-top" alt="Orange and White T-shirt">
             <div class="card-body text-center">
@@ -165,7 +166,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
+        <div class="col-md-4 mb-4 filter-item T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirt2.jpeg" class="card-img-top" alt="T-shirt">
             <div class="card-body text-center">
@@ -178,7 +179,7 @@
           </div>
         </div>
 
-        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
+        <div class="col-md-4 mb-4 filter-item T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirt3.jpeg" class="card-img-top" alt="Black T-shirt">
             <div class="card-body text-center">
@@ -198,99 +199,50 @@
 {% endblock %}
 
 {% block scripts %}
-<style>
-.product-card {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  display: none;
-}
-.product-card.show {
-  opacity: 1;
-  display: block;
-}
-</style>
-
 <script>
-// === CSRF Token Helper ===
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const items = document.querySelectorAll('.filter-item');
+  const cartItems = document.getElementById('cartItems');
+  const cartCount = document.getElementById('cartCount');
+  let cart = {};
 
-document.addEventListener("DOMContentLoaded", function () {
-    const productCards = document.querySelectorAll('.product-card');
-    const filterButtons = document.querySelectorAll(".filter-btn");
+  // Filter functionality
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-filter');
 
-    // === Category Filter ===
-    function filterCategory(category) {
-    console.log("Filtering category:", category);  // ✅ Add this line
-    productCards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (category === cardCategory) {
-            card.style.display = '';
-            card.classList.add('show');
-        } else {
-            card.style.display = 'none';
-            card.classList.remove('show');
-        }
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+
+      items.forEach(item => {
+        item.style.display = (filter === 'all' || item.classList.contains(filter)) ? 'block' : 'none';
+      });
     });
-}
+  });
 
-
-    // === Apply Event Listeners to Buttons ===
-    filterButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const category = btn.dataset.category;
-            filterButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            filterCategory(category);
-        });
+  // Add to cart
+  document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const itemName = btn.getAttribute('data-name');
+      if (cart[itemName]) {
+        cart[itemName]++;
+      } else {
+        cart[itemName] = 1;
+      }
+      updateCart();
     });
+  });
 
-    // === Apply Default Filter on Load ===
-    if (filterButtons.length > 0) {
-        const defaultCategory = filterButtons[0].dataset.category;
-        filterButtons[0].classList.add("active");
-        filterCategory(defaultCategory);
+  function updateCart() {
+    cartItems.innerHTML = '';
+    let total = 0;
+    for (const item in cart) {
+      const li = document.createElement('li');
+      li.textContent = `${item} × ${cart[item]}`;
+      cartItems.appendChild(li);
+      total += cart[item];
     }
-
-    // === Quantity Update Function ===
-    window.updateQuantity = function(itemId, action) {
-        fetch(`/products/update/${itemId}/${action}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
-                if (qtySpan) qtySpan.textContent = data.quantity;
-
-                const subtotalSpan = document.getElementById("cart-subtotal");
-                if (subtotalSpan && data.subtotal !== undefined) {
-                    subtotalSpan.textContent = `₹${data.subtotal}`;
-                }
-
-                if (data.quantity === 0) {
-                    const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
-                    if (itemBlock) itemBlock.remove();
-                }
-            }
-        });
-    };
-});
+    cartCount.textContent = total;
+  }
 </script>
 {% endblock %}
