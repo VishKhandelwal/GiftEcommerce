@@ -132,7 +132,7 @@ def add_to_cart(request, product_id):
 
     request.session['cart'] = cart
     messages.success(request, f"{product.name} added to cart. Replaced other {product.category} item(s).")
-    return redirect('products:Choose_items')  # or wherever your product list is shown
+    return redirect('cart:cart')  # or wherever your product list is shown
 
 
 # Update item quantity (increment/decrement)

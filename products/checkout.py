@@ -35,7 +35,7 @@ def checkout_view(request):
             send_mail(
                 subject='Your Order Confirmation',
                 message=f'Thank you for your purchase!\nOrder ID: {order_id}',
-                from_email='vaishali.kh2310@gmail.com',
+                from_email='yashika@theinfinitybox.in',
                 recipient_list=[request.user.email],
                 fail_silently=True,
             )
