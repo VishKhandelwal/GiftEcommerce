@@ -243,7 +243,7 @@ def checkout_success(request):
     send_mail(
         subject='Your Order Confirmation',
         message=f'Thank you for your purchase!\nOrder ID: {order.order_id}\nOTP for tracking: {otp}',
-        from_email='vaishali.kh2310@gmail.com',
+        from_email='hello@theinfinitybox.in',
         recipient_list=[user.email],
         fail_silently=True,
     )

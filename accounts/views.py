@@ -97,7 +97,7 @@ def login_view(request):
         send_mail(
             subject="Your Login OTP and Unique Code",
             message=message,
-            from_email="<yashika@theinfinitybox.in>",
+            from_email="<hello@theinfinitybox.in>",
             recipient_list=[email],
             fail_silently=False,
         )
