@@ -63,7 +63,7 @@ def add_to_cart(request, product_id):
         }
 
     request.session['cart'] = cart
-    return redirect('products: cart_summary_ajax')
+    return redirect('products:cart_summary_ajax')
 
 
 def cart_summary_ajax(request):
