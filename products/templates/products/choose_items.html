@@ -36,10 +36,11 @@
     <!-- Product Filters & Items -->
     <div class="col-md-8">
       <div id="category-buttons" class="mb-4">
-        <button class="btn btn-outline-dark filter-btn" data-category="T-shirts">T-shirts</button>
-        <button class="btn btn-outline-dark filter-btn" data-category="Notebooks">Notebooks</button>
-        <button class="btn btn-outline-dark filter-btn" data-category="Water Bottles">Water Bottles</button>
-      </div>
+        <button class="filter-btn" data-category="T-shirts">T-shirts</button>
+        <button class="filter-btn" data-category="Notebooks">Notebooks</button>
+        <button class="filter-btn" data-category="Water Bottles">Water Bottles</button>
+
+
 
       <div id="products" class="row">
         {% csrf_token %}
@@ -227,19 +228,42 @@ function getCookie(name) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Quantity update
-    document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("btn-increase") || e.target.classList.contains("btn-decrease")) {
-            const isIncrease = e.target.classList.contains("btn-increase");
-            const container = e.target.closest(".quantity-controls");
-            const itemId = container.dataset.itemId;
-            const action = isIncrease ? "increase" : "decrease";
+    const productCards = document.querySelectorAll('.product-card');
+    const filterButtons = document.querySelectorAll(".filter-btn");
 
-            updateQuantity(itemId, action);
-        }
+    // === Category Filter ===
+    function filterCategory(category) {
+        productCards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category');
+            if (category === cardCategory) {
+                card.style.display = '';
+                card.classList.add('show');
+            } else {
+                card.style.display = 'none';
+                card.classList.remove('show');
+            }
+        });
+    }
+
+    // === Apply Event Listeners to Buttons ===
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const category = btn.dataset.category;
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            filterCategory(category);
+        });
     });
 
-    function updateQuantity(itemId, action) {
+    // === Apply Default Filter on Load ===
+    if (filterButtons.length > 0) {
+        const defaultCategory = filterButtons[0].dataset.category;
+        filterButtons[0].classList.add("active");
+        filterCategory(defaultCategory);
+    }
+
+    // === Quantity Update Function ===
+    window.updateQuantity = function(itemId, action) {
         fetch(`/products/update/${itemId}/${action}/`, {
             method: 'POST',
             headers: {
@@ -264,37 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
-    }
-
-    // Product Filtering
-    const filterButtons = document.querySelectorAll(".filter-btn");
-    const productCards = document.querySelectorAll(".product-card");
-
-    function filterCategory(category) {
-        productCards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            if (category === "All" || category === cardCategory) {
-                card.style.display = '';
-                card.classList.add('show');
-            } else {
-                card.style.display = 'none';
-                card.classList.remove('show');
-            }
-        });
-    }
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const category = btn.dataset.category;
-            filterButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            filterCategory(category);
-        });
-    });
-
-    // Default filter on page load
-    filterButtons[0].classList.add("active");
-    filterCategory("T-shirts");
+    };
 });
 </script>
 {% endblock %}
