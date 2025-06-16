@@ -35,19 +35,18 @@
 
     <!-- Product Filters & Items -->
     <div class="col-md-8">
-      <div class="text-center mb-4">
-        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="T-Shirts">T-Shirts</button>
-        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="Water Bottles"> Water Bottles</button>
-        <button class="btn btn-outline-dark filter-btn mx-1" data-filter="Notebooks">Notebooks</button>
+      <!-- Filter Buttons -->
+      <div class="filters mb-3 text-center">
+        <button onclick="filterCategory('All')">All</button>
+        <button onclick="filterCategory('T-shirts')">T-shirts</button>
+        <button onclick="filterCategory('Notebook')">Notebook</button>
+        <button onclick="filterCategory('Water Bottles')">Water Bottles</button>
       </div>
-
-
-
       <div id="products" class="row">
         {% csrf_token %}
 
         <!-- Water Bottles -->
-        <div class="col-md-4 mb-4 filter-item Water Bottles">
+        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle1.jpeg" class="card-img-top" alt="Clear Bottle with White Cap">
             <div class="card-body text-center">
@@ -60,7 +59,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Water Bottles">
+        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle2.jpeg" class="card-img-top" alt="Black Cap Water Bottle">
             <div class="card-body text-center">
@@ -73,7 +72,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Water Bottles">
+        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle3.jpeg" class="card-img-top" alt="Square Water Bottle">
             <div class="card-body text-center">
@@ -86,7 +85,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Water Bottles">
+        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle4.jpeg" class="card-img-top" alt="Slim Bottle with Handle">
             <div class="card-body text-center">
@@ -99,7 +98,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Water Bottles">
+        <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
           <div class="card h-100">
             <img src="/media/products/Bottle5.jpeg" class="card-img-top" alt="Frosted Bottle">
             <div class="card-body text-center">
@@ -113,7 +112,7 @@
         </div>
 
         <!-- Notebooks -->
-        <div class="col-md-4 mb-4 filter-item Notebooks">
+        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook1.jpeg" class="card-img-top" alt="Minimalist Notebook">
             <div class="card-body text-center">
@@ -126,7 +125,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Notebooks">
+        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook2.jpeg" class="card-img-top" alt="Notebook2">
             <div class="card-body text-center">
@@ -139,7 +138,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item Notebooks">
+        <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
           <div class="card h-100">
             <img src="/media/products/Notebook3.jpeg" class="card-img-top" alt="Notebook3">
             <div class="card-body text-center">
@@ -153,7 +152,7 @@
         </div>
 
         <!-- T-shirts -->
-        <div class="col-md-4 mb-4 filter-item T-shirts">
+        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirts1.jpeg" class="card-img-top" alt="Orange and White T-shirt">
             <div class="card-body text-center">
@@ -166,7 +165,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item T-shirts">
+        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirt2.jpeg" class="card-img-top" alt="T-shirt">
             <div class="card-body text-center">
@@ -179,7 +178,7 @@
           </div>
         </div>
 
-        <div class="col-md-4 mb-4 filter-item T-shirts">
+        <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
           <div class="card h-100">
             <img src="/media/products/T-shirt3.jpeg" class="card-img-top" alt="Black T-shirt">
             <div class="card-body text-center">
@@ -199,50 +198,131 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+
+  .filter-btn.active {
+  background-color: #343a40;
+  color: white;
+}
+.product-card {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  display: none;
+}
+.product-card.show {
+  opacity: 1;
+  display: block;
+}
+</style>
+
 <script>
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const items = document.querySelectorAll('.filter-item');
-  const cartItems = document.getElementById('cartItems');
-  const cartCount = document.getElementById('cartCount');
-  let cart = {};
-
-  // Filter functionality
-  filterButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const filter = button.getAttribute('data-filter');
-
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-
-      items.forEach(item => {
-        item.style.display = (filter === 'all' || item.classList.contains(filter)) ? 'block' : 'none';
-      });
-    });
-  });
-
-  // Add to cart
-  document.querySelectorAll('.add-to-cart').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const itemName = btn.getAttribute('data-name');
-      if (cart[itemName]) {
-        cart[itemName]++;
-      } else {
-        cart[itemName] = 1;
-      }
-      updateCart();
-    });
-  });
-
-  function updateCart() {
-    cartItems.innerHTML = '';
-    let total = 0;
-    for (const item in cart) {
-      const li = document.createElement('li');
-      li.textContent = `${item} × ${cart[item]}`;
-      cartItems.appendChild(li);
-      total += cart[item];
+// === CSRF Token Helper ===
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
-    cartCount.textContent = total;
-  }
+    return cookieValue;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const productCards = document.querySelectorAll('.product-card');
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const buttons = document.querySelectorAll('.add-to-cart-btn');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            const productId = this.dataset.id;
+
+            fetch("{% url 'products:add_to_cart' 0 %}".replace('/0/', `/${productId}/`), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Added to cart!");
+                    // Optionally update cart summary here
+                } else {
+                    alert("Error: " + data.message);
+                }
+            });
+        });
+    });
+});
+
+    // === Category Filter ===
+    function filterCategory(category) {
+    console.log("Filtering category:", category);
+    productCards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        if (category === "all" || cardCategory === category) {
+            card.style.display = '';
+            card.classList.add('show');
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('show');
+        }
+    });
+}
+
+
+
+    // === Apply Event Listeners to Buttons ===
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const category = btn.dataset.category;
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            filterCategory(category);
+        });
+    });
+
+    // === Apply Default Filter on Load ===
+    if (filterButtons.length > 0) {
+        const defaultCategory = filterButtons[0].dataset.category;
+        filterButtons[0].classList.add("active");
+        filterCategory("T-shirts");
+    }
+
+    // === Quantity Update Function ===
+    window.updateQuantity = function(itemId, action) {
+        fetch(`/products/update/${itemId}/${action}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
+                if (qtySpan) qtySpan.textContent = data.quantity;
+
+                const subtotalSpan = document.getElementById("cart-subtotal");
+                if (subtotalSpan && data.subtotal !== undefined) {
+                    subtotalSpan.textContent = `₹${data.subtotal}`;
+                }
+
+                if (data.quantity === 0) {
+                    const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
+                    if (itemBlock) itemBlock.remove();
+                }
+            }
+        });
+    };
+});
 </script>
 {% endblock %}
