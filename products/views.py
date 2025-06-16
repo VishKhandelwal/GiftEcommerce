@@ -28,53 +28,48 @@ def choose_box(request):
         return redirect('products:choose_items')
     return render(request, 'products/choose_box.html')
 
+@login_required
 def choose_items(request):
+    # Only products of specified types
     products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Water Bottles'])
+    cart_items = CartItem.objects.filter(user=request.user)
+    subtotal = sum(item.calc_subtotal() for item in cart_items)
 
-    if request.method == "POST" and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        action = request.POST.get('action')
+    if request.method == 'POST':
         product_id = request.POST.get('product_id')
+        action = request.POST.get('action')  # Optional: e.g., 'add', 'remove', 'increment', 'decrement'
+
         product = get_object_or_404(Product, id=product_id)
 
-        cart_item, created = CartItem.objects.get_or_create(user=request.user, product=product)
-
         if action == 'add':
-            if not created:
-                cart_item.quantity += 1
-            cart_item.save()
-
-        elif action == 'remove':
-            cart_item.delete()
+            # Remove other products in the same category
+            CartItem.objects.filter(user=request.user, product__category=product.category).delete()
+            CartItem.objects.create(user=request.user, product=product, quantity=1)
 
         elif action == 'increment':
-            cart_item.quantity += 1
-            cart_item.save()
+            item = get_object_or_404(CartItem, user=request.user, product=product)
+            item.quantity += 1
+            item.save()
 
         elif action == 'decrement':
-            if cart_item.quantity > 1:
-                cart_item.quantity -= 1
-                cart_item.save()
+            item = get_object_or_404(CartItem, user=request.user, product=product)
+            if item.quantity > 1:
+                item.quantity -= 1
+                item.save()
             else:
-                cart_item.delete()
+                item.delete()
 
-        # Refresh cart data
-        cart_items = CartItem.objects.filter(user=request.user)
-        cart_total = sum(item.calc_subtotal() for item in cart_items)
+        elif action == 'remove':
+            CartItem.objects.filter(user=request.user, product=product).delete()
 
-        return render(request, 'products/choose_items.html', {
-            'products': products,
-            'cart_items': cart_items,
-            'cart_total': cart_total,
-        })
-    cart_items = CartItem.objects.filter(user=request.user)
-    cart_total = sum(item.calc_subtotal() for item in cart_items)
+        return redirect('products:choose_items')  # Refresh page to reflect changes
 
     return render(request, 'products/choose_items.html', {
         'products': products,
         'cart_items': cart_items,
-        'cart_total': cart_total,
+        'subtotal': subtotal,
     })
-  
+
 
 
 def cart_summary_ajax(request):
@@ -104,22 +99,23 @@ def cart_view(request):
     return render(request, 'cart/cart.html', context)
 
 
-@login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     user = request.user
 
-    # Remove any existing cart item from the same category
+    # Allow only one item per category
     existing_items = CartItem.objects.filter(user=user)
     for item in existing_items:
-        if item.product.category == product.category:
+        if item.product.category == product.category and item.product != product:
             item.delete()
 
-    # Add the new item
+    # Add product
     cart_item, created = CartItem.objects.get_or_create(user=user, product=product)
     if not created:
         cart_item.quantity += 1
-        cart_item.save()
+    else:
+        cart_item.quantity = 1
+    cart_item.save()
 
     return redirect('products:choose_items')
 
@@ -136,10 +132,9 @@ def update_cart_item(request, item_id, action):
             item.quantity -= 1
             item.save()
         else:
-            item.delete()  # auto-remove if quantity goes to 0
+            item.delete()
 
-    return redirect('cart:cart')
-
+    return redirect('products:choose_items')
 
 # Remove item from cart
 def remove_cart_item(request, item_id):

@@ -201,13 +201,31 @@
 .product-card {
   opacity: 0;
   transition: opacity 0.5s ease;
+  display: none;
 }
 .product-card.show {
   opacity: 1;
+  display: block;
 }
 </style>
 
 <script>
+// === CSRF Token Helper ===
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     // Quantity update
     document.addEventListener("click", function (e) {
@@ -225,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(`/products/update/${itemId}/${action}/`, {
             method: 'POST',
             headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
+                'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json'
             }
         })
@@ -274,7 +292,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    filterCategory("T-shirts"); // default
+    // Default filter on page load
+    filterButtons[0].classList.add("active");
+    filterCategory("T-shirts");
 });
 </script>
 {% endblock %}
