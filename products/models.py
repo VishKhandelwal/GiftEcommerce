@@ -41,7 +41,7 @@ class CustomBox(models.Model):
     
 
     def __str__(self):
-        return f"CustomBox {self.id} - {self.box_color}"
+        return f"CustomBox {self.id}"
     
 class DeliveryAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
