@@ -112,28 +112,30 @@ from django.contrib import messages
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    cart = request.session.get('cart', {})
-
-    # Load product's category
-    product_category = product.category
-
-    # Remove any existing item in the same category
-    items_to_remove = []
-    for pid in cart:
-        existing_product = Product.objects.get(id=pid)
-        if existing_product.category == product_category:
-            items_to_remove.append(pid)
-
-    for pid in items_to_remove:
-        del cart[pid]
-
-    # Add the new item
-    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
-
-    request.session['cart'] = cart
-    messages.success(request, f"{product.name} added to cart. Replaced other {product.category} item(s).")
-    return redirect('cart:cart')  # or wherever your product list is shown
-
+    
+    # Remove any existing cart item in the same category for the user
+    CartItem.objects.filter(
+        user=request.user,
+        product__category=product.category
+    ).delete()
+    
+    # Add or create the new product in the cart
+    cart_item, created = CartItem.objects.get_or_create(
+        user=request.user,
+        product=product,
+        defaults={'quantity': 1}
+    )
+    
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    
+    messages.success(
+        request,
+        f"{product.name} added to cart. Replaced any existing item in the '{product.category}' category."
+    )
+    
+    return redirect('cart:cart')
 
 # Update item quantity (increment/decrement)
 def update_cart_item(request, item_id, action):
