@@ -28,48 +28,39 @@ def choose_box(request):
         return redirect('products:choose_items')
     return render(request, 'products/choose_box.html')
 
-@login_required
+
 def choose_items(request):
-    # Only products of specified types
-    products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Water Bottles'])
-    cart_items = CartItem.objects.filter(user=request.user)
-    subtotal = sum(item.calc_subtotal() for item in cart_items)
+    category = request.GET.get('category')  # 'T-shirts', 'Notebooks', etc.
 
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        action = request.POST.get('action')  # Optional: e.g., 'add', 'remove', 'increment', 'decrement'
+    if category:
+        products = Product.objects.filter(product_type=category)
+    else:
+        products = Product.objects.all()
 
-        product = get_object_or_404(Product, id=product_id)
-
-        if action == 'add':
-            # Remove other products in the same category
-            CartItem.objects.filter(user=request.user, product__category=product.category).delete()
-            CartItem.objects.create(user=request.user, product=product, quantity=1)
-
-        elif action == 'increment':
-            item = get_object_or_404(CartItem, user=request.user, product=product)
-            item.quantity += 1
-            item.save()
-
-        elif action == 'decrement':
-            item = get_object_or_404(CartItem, user=request.user, product=product)
-            if item.quantity > 1:
-                item.quantity -= 1
-                item.save()
-            else:
-                item.delete()
-
-        elif action == 'remove':
-            CartItem.objects.filter(user=request.user, product=product).delete()
-
-        return redirect('products:choose_items')  # Refresh page to reflect changes
+    cart = request.session.get('cart', {})
 
     return render(request, 'products/choose_items.html', {
         'products': products,
-        'cart_items': cart_items,
-        'subtotal': subtotal,
+        'cart_items': cart,
+        'selected_category': category,
     })
 
+
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart = request.session.get('cart', {})
+
+    if str(product_id) in cart:
+        cart[str(product_id)]['quantity'] += 1
+    else:
+        cart[str(product_id)] = {
+            'name': product.name,
+            'price': float(product.price),
+            'quantity': 1,
+        }
+
+    request.session['cart'] = cart
+    return redirect('products:choose_items')
 
 
 def cart_summary_ajax(request):
@@ -98,26 +89,6 @@ def cart_view(request):
     }
     return render(request, 'cart/cart.html', context)
 
-
-def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    user = request.user
-
-    # Allow only one item per category
-    existing_items = CartItem.objects.filter(user=user)
-    for item in existing_items:
-        if item.product.category == product.category and item.product != product:
-            item.delete()
-
-    # Add product
-    cart_item, created = CartItem.objects.get_or_create(user=user, product=product)
-    if not created:
-        cart_item.quantity += 1
-    else:
-        cart_item.quantity = 1
-    cart_item.save()
-
-    return redirect('products:choose_items')
 
 
 # Update item quantity (increment/decrement)

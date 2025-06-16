@@ -36,9 +36,15 @@
     <!-- Product Filters & Items -->
     <div class="col-md-8">
       <div id="category-buttons" class="mb-4">
-        <button class="btn btn-outline-dark filter-btn" data-category="T-shirts">T-shirts</button>
-        <button class="btn btn-outline-dark filter-btn" data-category="Notebooks">Notebooks</button>
-        <button class="btn btn-outline-dark filter-btn" data-category="Water Bottles">Water Bottles</button>
+        <a href="?category=T-shirts">
+                <button {% if selected_category = "T-shirts" %}class="active"{% endif %}>T-shirts</button>
+            </a>
+            <a href="?category=Notebooks">
+                <button {% if selected_category = "Notebooks" %}class="active"{% endif %}>Notebooks</button>
+            </a>
+            <a href="?category=Water Bottles">
+                <button {% if selected_category = "Water Bottles" %}class="active"{% endif %}>Water Bottles</button>
+            </a>
       </div>
 
       <div id="products" class="row">
