@@ -36,10 +36,13 @@
     <!-- Product Filters & Items -->
     <div class="col-md-8">
       <div id="category-buttons" class="mb-4">
-        <button class="filter-btn btn btn-outline-primary me-2" data-category="T-shirts">T-shirts</button>
-        <button class="filter-btn btn btn-outline-primary me-2" data-category="Notebooks">Notebooks</button>
-        <button class="filter-btn btn btn-outline-primary me-2" data-category="Water Bottles">Water Bottles</button>
+        <a href="{% url 'choose_items' %}" class="btn btn-outline-primary me-2 {% if not selected_category %}active{% endif %}">All</a>
+        <a href="?category=T-shirts" class="btn btn-outline-primary me-2 {% if selected_category == 'T-shirts' %}active{% endif %}">T-shirts</a>
+        <a href="?category=Notebooks" class="btn btn-outline-primary me-2 {% if selected_category == 'Notebooks' %}active{% endif %}">Notebooks</a>
+        <a href="?category=Water Bottles" class="btn btn-outline-primary me-2 {% if selected_category == 'Water Bottles' %}active{% endif %}">Water Bottles</a>
       </div>
+
+
 
     <div id="products" class="row">
     {% csrf_token %}
@@ -87,7 +90,7 @@
 <!-- Water Bottle 4 -->
     <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
       <div class="card h-100">
-        <img src="/media/products/bottle4.jpg" class="card-img-top" alt="Slim Bottle with Handle">
+        <img src="/media/products/Bottle4.jpeg" class="card-img-top" alt="Slim Bottle with Handle">
         <div class="card-body text-center">
           <h5 class="card-title">Slim Handle Bottle</h5>
           <form method="post" action="{% url 'products:add_to_cart' 4 %}">
