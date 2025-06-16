@@ -17,10 +17,11 @@
               <strong>{{ item.product.name }}</strong><br>
               ₹{{ item.product.price }} × {{ item.quantity }}
             </div>
-            <div class="quantity-controls d-flex align-items-center gap-1" data-item-id="{{ item.product.id }}">
-              <button class="btn btn-outline-secondary btn-sm btn-decrease">−</button>
+            <div class="quantity-controls d-flex align-items-center gap-1">
+              <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity({ item.product.id }, 'decrease')">−</button>
               <span class="item-qty">{{ item.quantity }}</span>
-              <button class="btn btn-outline-secondary btn-sm btn-increase">+</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity({{item.product.id }, 'increase')">+</button>
+
             </div>
           </div>
           {% empty %}
@@ -35,12 +36,10 @@
 
     <!-- Product Filters & Items -->
     <div class="col-md-8">
-      <!-- Filter Buttons -->
       <div class="filters mb-3 text-center">
-        <button onclick="filterCategory('All')">All</button>
-        <button onclick="filterCategory('T-shirts')">T-shirts</button>
-        <button onclick="filterCategory('Notebook')">Notebook</button>
-        <button onclick="filterCategory('Water Bottles')">Water Bottles</button>
+        <button class="filter-btn" data-category="T-shirts">T-shirts</button>
+        <button class="filter-btn" data-category="Notebooks">Notebook</button>
+        <button class="filter-btn" data-category="Water Bottles">Water Bottles</button>
       </div>
       <div id="products" class="row">
         {% csrf_token %}
@@ -199,130 +198,95 @@
 
 {% block scripts %}
 <style>
-
   .filter-btn.active {
-  background-color: #343a40;
-  color: white;
-}
-.product-card {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  display: none;
-}
-.product-card.show {
-  opacity: 1;
-  display: block;
-}
+    background-color: #343a40;
+    color: white;
+  }
+  .product-card {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    display: none;
+  }
+  .product-card.show {
+    opacity: 1;
+    display: block;
+  }
 </style>
 
 <script>
-// === CSRF Token Helper ===
 function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
     }
-    return cookieValue;
+  }
+  return cookieValue;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    const productCards = document.querySelectorAll('.product-card');
-    const filterButtons = document.querySelectorAll(".filter-btn");
-    const buttons = document.querySelectorAll('.add-to-cart-btn');
+  const productCards = document.querySelectorAll('.product-card');
+  const filterButtons = document.querySelectorAll(".filter-btn");
 
-    buttons.forEach(button => {
-        button.addEventListener('click', function () {
-            const productId = this.dataset.id;
-
-            fetch("{% url 'products:add_to_cart' 0 %}".replace('/0/', `/${productId}/`), {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({}),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Added to cart!");
-                    // Optionally update cart summary here
-                } else {
-                    alert("Error: " + data.message);
-                }
-            });
-        });
+  filterButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const category = btn.dataset.category;
+      filterButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      filterCategory(category);
     });
+  });
+
+  if (filterButtons.length > 0) {
+    filterButtons[0].classList.add("active");
+    filterCategory(filterButtons[0].dataset.category);
+  }
 });
 
-    // === Category Filter ===
-    function filterCategory(category) {
-    console.log("Filtering category:", category);
-    productCards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (category === "all" || cardCategory === category) {
-            card.style.display = '';
-            card.classList.add('show');
-        } else {
-            card.style.display = 'none';
-            card.classList.remove('show');
-        }
-    });
+function filterCategory(category) {
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach(card => {
+    const cat = card.getAttribute('data-category');
+    if (category === "All" || cat === category) {
+      card.style.display = '';
+      card.classList.add('show');
+    } else {
+      card.style.display = 'none';
+      card.classList.remove('show');
+    }
+  });
 }
 
-
-
-    // === Apply Event Listeners to Buttons ===
-    filterButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const category = btn.dataset.category;
-            filterButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            filterCategory(category);
-        });
-    });
-
-    // === Apply Default Filter on Load ===
-    if (filterButtons.length > 0) {
-        const defaultCategory = filterButtons[0].dataset.category;
-        filterButtons[0].classList.add("active");
-        filterCategory("T-shirts");
+function updateQuantity(itemId, action) {
+  fetch(`/products/update/${itemId}/${action}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'Content-Type': 'application/json'
     }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
+      if (qtySpan) qtySpan.textContent = data.quantity;
 
-    // === Quantity Update Function ===
-    window.updateQuantity = function(itemId, action) {
-        fetch(`/products/update/${itemId}/${action}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
-                if (qtySpan) qtySpan.textContent = data.quantity;
+      const subtotalSpan = document.getElementById("cart-subtotal");
+      if (subtotalSpan && data.subtotal !== undefined) {
+        subtotalSpan.textContent = `₹${data.subtotal}`;
+      }
 
-                const subtotalSpan = document.getElementById("cart-subtotal");
-                if (subtotalSpan && data.subtotal !== undefined) {
-                    subtotalSpan.textContent = `₹${data.subtotal}`;
-                }
-
-                if (data.quantity === 0) {
-                    const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
-                    if (itemBlock) itemBlock.remove();
-                }
-            }
-        });
-    };
-});
+      if (data.quantity === 0) {
+        const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
+        if (itemBlock) itemBlock.remove();
+      }
+    }
+  });
+}
 </script>
 {% endblock %}
