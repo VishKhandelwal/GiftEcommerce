@@ -30,7 +30,8 @@ def choose_box(request):
 
 
 def choose_items(request):
-    category = request.GET.get('category')  # "T-shirts", "Notebooks", etc.
+    category = request.GET.get('category')  # e.g., "T-shirts", "Notebooks", etc.
+
     if category:
         products = Product.objects.filter(type=category)
     else:
@@ -43,6 +44,7 @@ def choose_items(request):
         'products': products,
         'cart_items': cart_items,
         'cart_total': cart_total,
+        'selected_category': category,  # For highlighting the selected filter button in HTML
     })
 
 

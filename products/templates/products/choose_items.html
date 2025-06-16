@@ -277,18 +277,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const productCards = document.querySelectorAll(".product-card");
 
     function filterCategory(category) {
-        productCards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            if (category === "All" || category === cardCategory) {
-                card.style.display = '';
-                card.classList.add('show');
-            } else {
-                card.style.display = 'none';
-                card.classList.remove('show');
-            }
-        });
-    }
-
+    productCards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        if (category === cardCategory) {
+            card.style.display = '';
+            card.classList.add('show');
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('show');
+        }
+    });
+}
     filterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const category = btn.dataset.category;
