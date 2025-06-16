@@ -67,7 +67,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'yashika@theinfinitybox.in'
-EMAIL_HOST_PASSWORD = 'mbblrdmnnnrxdefh'  # Your 16-char Gmail App Password
+EMAIL_HOST_PASSWORD = 'djfmujhreinxtuuk'  # Your 16-char Gmail App Password
 DEFAULT_FROM_EMAIL = '<yashika@theinfinitybox.in>'
 
 
