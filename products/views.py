@@ -30,20 +30,21 @@ def choose_box(request):
 
 
 def choose_items(request):
-    category = request.GET.get('category')  # 'T-shirts', 'Notebooks', etc.
-
+    category = request.GET.get('category')  # "T-shirts", "Notebooks", etc.
     if category:
-        products = Product.objects.filter(product_type=category)
+        products = Product.objects.filter(type=category)
     else:
-        products = Product.objects.all()
+        products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Water Bottles'])
 
-    cart = request.session.get('cart', {})
+    cart_items = CartItem.objects.filter(user=request.user)
+    cart_total = sum(item.calc_subtotal() for item in cart_items)
 
     return render(request, 'products/choose_items.html', {
         'products': products,
-        'cart_items': cart,
-        'selected_category': category,
+        'cart_items': cart_items,
+        'cart_total': cart_total,
     })
+
 
 
 def add_to_cart(request, product_id):
