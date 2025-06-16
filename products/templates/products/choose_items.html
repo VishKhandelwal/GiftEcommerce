@@ -36,10 +36,11 @@
     <!-- Product Filters & Items -->
     <div class="col-md-8">
       <div id="category-buttons" class="mb-4">
-        <a href="{% url 'products:choose_items' 'T-shirts' %}">T-shirts</a>
-        <a href="{% url 'products:choose_items' 'Notebooks' %}">Notebooks</a>
-        <a href="{% url 'products:choose_items' 'Water Bottles' %}">Water Bottles</a>
-      </div>
+        <button class="btn btn-outline-dark filter-btn" data-category="T-shirts">T-shirts</button>
+        <button class="btn btn-outline-dark filter-btn" data-category="Notebooks">Notebooks</button>
+        <button class="btn btn-outline-dark filter-btn" data-category="Water Bottles">Water Bottles</button>
+        
+</div>
 
 
 
@@ -256,13 +257,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function filterCategory(category) {
     productCards.forEach(card => {
         const cardCategory = card.getAttribute('data-category');
-        if (category === cardCategory) {
-            card.style.display = '';  // Show
+        if (category === "All" || category === cardCategory) {
+            card.style.display = '';
+            card.classList.add('show');
         } else {
-            card.style.display = 'none';  // Hide others
+            card.style.display = 'none';
+            card.classList.remove('show');
         }
-      });
-    }
+    });
+}
 
     filterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
