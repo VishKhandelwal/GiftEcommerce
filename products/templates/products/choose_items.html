@@ -233,17 +233,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // === Category Filter ===
     function filterCategory(category) {
-        productCards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            if (category === cardCategory) {
-                card.style.display = '';
-                card.classList.add('show');
-            } else {
-                card.style.display = 'none';
-                card.classList.remove('show');
-            }
-        });
-    }
+    console.log("Filtering category:", category);  // ✅ Add this line
+    productCards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category');
+        if (category === cardCategory) {
+            card.style.display = '';
+            card.classList.add('show');
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('show');
+        }
+    });
+}
+
 
     // === Apply Event Listeners to Buttons ===
     filterButtons.forEach(btn => {
