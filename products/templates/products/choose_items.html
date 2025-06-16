@@ -39,157 +39,38 @@
         <button class="btn btn-outline-dark filter-btn" data-category="T-shirts">T-shirts</button>
         <button class="btn btn-outline-dark filter-btn" data-category="Notebooks">Notebooks</button>
         <button class="btn btn-outline-dark filter-btn" data-category="Water Bottles">Water Bottles</button>
-        
-</div>
-
-
-
-    <div id="products" class="row">
-    {% csrf_token %}
-    <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
-      <div class="card h-100">
-        <img src="/media/products/Bottle1.jpeg" class="card-img-top" alt="Clear Bottle with White Cap">
-        <div class="card-body text-center">
-          <h5 class="card-title">Clear Bottle</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 1 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
       </div>
-    </div>
 
-<!-- Water Bottle 2 -->
-    <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
-      <div class="card h-100">
-        <img src="/media/products/Bottle2.jpeg" class="card-img-top" alt="Black Cap Water Bottle">
-        <div class="card-body text-center">
-          <h5 class="card-title">Bottle with Black Cap</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 2 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-      </div>
-    </div>
-    </div>
+      <div id="products" class="row">
+        {% csrf_token %}
 
-<!-- Water Bottle 3 -->
-    <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
-     <div class="card h-100">
-        <img src="/media/products/Bottle3.jpeg" class="card-img-top" alt="Square Water Bottle">
-        <div class="card-body text-center">
-          <h5 class="card-title">Square Bottle</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 3 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
+        <!-- WATER BOTTLES -->
+        {% for id, name, image, category in [
+          (1, 'Clear Bottle', 'Bottle1.jpeg', 'Water Bottles'),
+          (2, 'Bottle with Black Cap', 'Bottle2.jpeg', 'Water Bottles'),
+          (3, 'Square Bottle', 'Bottle3.jpeg', 'Water Bottles'),
+          (4, 'Slim Handle Bottle', 'Bottle4.jpeg', 'Water Bottles'),
+          (5, 'Frosted Bottle', 'Bottle5.jpeg', 'Water Bottles'),
+          (6, 'Minimalist Notebook', 'Notebook1.jpeg', 'Notebooks'),
+          (7, 'Notebook2', 'Notebook2.jpeg', 'Notebooks'),
+          (8, 'Notebook3', 'Notebook3.jpeg', 'Notebooks'),
+          (9, 'Orange & White T-shirt', 'T-shirts1.jpeg', 'T-shirts'),
+          (10, 'T-shirt', 'T-shirt2.jpeg', 'T-shirts'),
+          (11, 'Black T-shirt', 'T-shirt3.jpeg', 'T-shirts')
+        ] %}
+        <div class="col-md-3 mb-4 product-card" data-category="{{ category }}">
+          <div class="card h-100">
+            <img src="/media/products/{{ image }}" class="card-img-top" alt="{{ name }}">
+            <div class="card-body text-center">
+              <h5 class="card-title">{{ name }}</h5>
+              <form method="post" action="{% url 'products:add_to_cart' id %}" class="add-to-cart-form" data-category="{{ category }}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">Add to Cart</button>
+              </form>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-
-<!-- Water Bottle 4 -->
-    <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
-      <div class="card h-100">
-        <img src="/media/products/Bottle4.jpeg" class="card-img-top" alt="Slim Bottle with Handle">
-        <div class="card-body text-center">
-          <h5 class="card-title">Slim Handle Bottle</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 4 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-<!-- Water Bottle 5 -->
-    <div class="col-md-3 mb-4 product-card" data-category="Water Bottles">
-      <div class="card h-100">
-        <img src="/media/products/Bottle5.jpeg" class="card-img-top" alt="Frosted Bottle">
-        <div class="card-body text-center">
-          <h5 class="card-title">Frosted Bottle</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 5 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-<!-- Notebook -->
-    <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
-      <div class="card h-100">
-        <img src="/media/products/Notebook1.jpeg" class="card-img-top" alt="Notebook with minimal design">
-        <div class="card-body text-center">
-          <h5 class="card-title">Minimalist Notebook</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 6 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
-      <div class="card h-100">
-        <img src="/media/products/Notebook2.jpeg" class="card-img-top" alt="Notebook with minimal design">
-        <div class="card-body text-center">
-          <h5 class="card-title">Notebook2</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 7 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3 mb-4 product-card" data-category="Notebooks">
-      <div class="card h-100">
-        <img src="/media/products/Notebook3.jpeg" class="card-img-top" alt="Notebook with minimal design">
-        <div class="card-body text-center">
-          <h5 class="card-title">Notebook3</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 8 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-<!-- T-shirt -->
-    <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
-      <div class="card h-100">
-        <img src="/media/products/T-shirts1.jpeg" class="card-img-top" alt="Orange and White T-shirt">
-        <div class="card-body text-center">
-          <h5 class="card-title">Orange & White T-shirt</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 9 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
-      <div class="card h-100">
-        <img src="/media/products/T-shirt2.jpeg" class="card-img-top" alt="T-shirt">
-        <div class="card-body text-center">
-          <h5 class="card-title"> T-shirt</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 10 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3 mb-4 product-card" data-category="T-shirts">
-      <div class="card h-100">
-        <img src="/media/products/T-shirt3.jpeg" class="card-img-top" alt="Black T-shirt">
-        <div class="card-body text-center">
-          <h5 class="card-title">Black T-shirt</h5>
-          <form method="post" action="{% url 'products:add_to_cart' 11 %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-dark">Add to Cart</button>
-          </form>
-        </div>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -205,10 +86,62 @@
 .product-card.show {
   opacity: 1;
 }
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // --- Quantity Update: + / - buttons ---
+    const selectedCategories = new Set();
+
+    // Track selected categories based on cart
+    document.querySelectorAll("#cart-items [data-item-id]").forEach(itemBlock => {
+        const itemId = itemBlock.dataset.itemId;
+        const form = document.querySelector(`form[action$='/${itemId}/']`);
+        if (form) {
+            const category = form.dataset.category;
+            if (category) selectedCategories.add(category);
+        }
+    });
+
+    // Disable buttons of already selected categories
+    const cartForms = document.querySelectorAll(".add-to-cart-form");
+    cartForms.forEach(form => {
+        const category = form.dataset.category;
+        if (selectedCategories.has(category)) {
+            const btn = form.querySelector("button");
+            btn.disabled = true;
+            btn.classList.remove("btn-dark");
+            btn.classList.add("btn-secondary");
+        }
+    });
+
+    // Add to Cart restriction
+    cartForms.forEach(form => {
+        form.addEventListener("submit", function (e) {
+            const category = form.dataset.category;
+            if (selectedCategories.has(category)) {
+                e.preventDefault();
+                alert(`You can only add one item from the "${category}" category.`);
+                return false;
+            }
+
+            selectedCategories.add(category);
+
+            cartForms.forEach(otherForm => {
+                if (otherForm !== form && otherForm.dataset.category === category) {
+                    const btn = otherForm.querySelector("button");
+                    btn.disabled = true;
+                    btn.classList.remove("btn-dark");
+                    btn.classList.add("btn-secondary");
+                }
+            });
+        });
+    });
+
+    // Quantity update
     document.addEventListener("click", function (e) {
         if (e.target.classList.contains("btn-increase") || e.target.classList.contains("btn-decrease")) {
             const isIncrease = e.target.classList.contains("btn-increase");
@@ -232,40 +165,48 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
-                if (qtySpan) {
-                    qtySpan.textContent = data.quantity;
-                }
+                if (qtySpan) qtySpan.textContent = data.quantity;
 
                 const subtotalSpan = document.getElementById("cart-subtotal");
                 if (subtotalSpan && data.subtotal !== undefined) {
                     subtotalSpan.textContent = `₹${data.subtotal}`;
                 }
 
-                // Remove item if quantity is 0
                 if (data.quantity === 0) {
                     const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
                     if (itemBlock) itemBlock.remove();
+
+                    const category = data.category;
+                    const forms = document.querySelectorAll(`.add-to-cart-form[data-category="${category}"]`);
+                    forms.forEach(f => {
+                        const btn = f.querySelector("button");
+                        btn.disabled = false;
+                        btn.classList.remove("btn-secondary");
+                        btn.classList.add("btn-dark");
+                    });
+
+                    selectedCategories.delete(category);
                 }
             }
         });
     }
 
-    // --- Product Category Filtering ---
+    // Filtering
     const filterButtons = document.querySelectorAll(".filter-btn");
     const productCards = document.querySelectorAll(".product-card");
 
     function filterCategory(category) {
-    productCards.forEach(card => {
-        const cardCategory = card.getAttribute('data-category');
-        if (category === "All" || category === cardCategory) {
-            card.style.display = '';
-            card.classList.add('show');
-        } else {
-            card.style.display = 'none';
-            card.classList.remove('show');
-        }
-    });
-}
+        productCards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category');
+            if (category === "All" || category === cardCategory) {
+                card.style.display = '';
+                card.classList.add('show');
+            } else {
+                card.style.display = 'none';
+                card.classList.remove('show');
+            }
+        });
+    }
 
     filterButtons.forEach(btn => {
         btn.addEventListener("click", () => {
@@ -276,8 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Default: show only T-shirts
-    filterCategory("T-shirts");
+    filterCategory("T-shirts"); // default view
 });
 </script>
 {% endblock %}

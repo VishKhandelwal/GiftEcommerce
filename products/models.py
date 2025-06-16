@@ -25,7 +25,7 @@ class Product(models.Model):
     is_customizable = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.CharField(max_length=100)  # e.g., "T-shirts", "Notebooks"
     available = models.BooleanField(default=True)
     
     def __str__(self):

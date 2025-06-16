@@ -104,38 +104,25 @@ def cart_view(request):
     return render(request, 'cart/cart.html', context)
 
 
-
-# Add to cart (via POST or direct call)
-from django.shortcuts import redirect, get_object_or_404
-from .models import Product
-from django.contrib import messages
-
+@login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
-    # Remove any existing cart item in the same category for the user
-    CartItem.objects.filter(
-        user=request.user,
-        product__category=product.category
-    ).delete()
-    
-    # Add or create the new product in the cart
-    cart_item, created = CartItem.objects.get_or_create(
-        user=request.user,
-        product=product,
-        defaults={'quantity': 1}
-    )
-    
+    user = request.user
+
+    # Remove any existing cart item from the same category
+    existing_items = CartItem.objects.filter(user=user)
+    for item in existing_items:
+        if item.product.category == product.category:
+            item.delete()
+
+    # Add the new item
+    cart_item, created = CartItem.objects.get_or_create(user=user, product=product)
     if not created:
         cart_item.quantity += 1
         cart_item.save()
-    
-    messages.success(
-        request,
-        f"{product.name} added to cart. Replaced any existing item in the '{product.category}' category."
-    )
-    
-    return redirect('cart:cart')
+
+    return redirect('products:choose_items')
+
 
 # Update item quantity (increment/decrement)
 def update_cart_item(request, item_id, action):
