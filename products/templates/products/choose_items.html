@@ -1,46 +1,36 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container">
-  <h2>Choose Your Items</h2>
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Choose Your Items</h2>
 
-  <div class="row">
-    <!-- Cart Summary -->
-    <div class="col-md-4">
-      <div class="card p-3">
-        <h5>Your Cart</h5>
-        <div id="cart-items">
-          {% for item in cart_items %}
-          <div class="d-flex justify-content-between align-items-center mb-2" data-item-id="{{ item.product.id }}">
-            <div>
-              <strong>{{ item.product.name }}</strong><br>
-              ₹{{ item.product.price }} × {{ item.quantity }}
-            </div>
-            <div class="quantity-controls d-flex align-items-center gap-1">
-              <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity({ item.product.id }, 'decrease')">−</button>
-              <span class="item-qty">{{ item.quantity }}</span>
-              <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity({{item.product.id }, 'increase')">+</button>
+  
 
-            </div>
-          </div>
-          {% empty %}
-          <p>No items in cart.</p>
-          {% endfor %}
-        </div>
-        <hr>
-        <p><strong>Subtotal:</strong> <span id="cart-subtotal">₹{{ subtotal }}</span></p>
-        <a href="{% url 'products:magic_created' %}" class="btn btn-success">Next Step</a>
-      </div>
-    </div>
+  <!-- Filter Buttons -->
+  <div class="text-center mb-4">
+    {% for category in categories %}
+      <button class="btn btn-outline-primary mx-1 filter-btn" data-category="{{ category }}">{{ category }}</button>
+    {% endfor %}
+  </div>
+
+  <!-- Cart Summary -->
+  <div class="mb-4">
+    <h5>Your Cart</h5>
+    {% if cart_items %}
+      <ul>
+        {% for item in cart_items %}
+          <li>{{ item.product.name }} (x{{ item.quantity }})</li>
+        {% endfor %}
+      </ul>
+      <p><strong>Subtotal: ₹{{ cart_total }}</strong></p>
+    {% else %}
+      <p>No items in cart.</p>
+    {% endif %}
+    <a href="{% url 'products:magic_created' %}" class="btn btn-success">Next Step</a>
+  </div>
 
     <!-- Product Filters & Items -->
-    <div class="col-md-8">
-      <div class="filters mb-3 text-center">
-        <button class="filter-btn" data-category="T-shirts">T-shirts</button>
-        <button class="filter-btn" data-category="Notebooks">Notebook</button>
-        <button class="filter-btn" data-category="Water Bottles">Water Bottles</button>
-      </div>
       <div id="products" class="row">
         {% csrf_token %}
 
@@ -52,6 +42,7 @@
               <h5 class="card-title">Clear Bottle</h5>
               <form method="post" action="{% url 'products:add_to_cart' 1 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -65,6 +56,7 @@
               <h5 class="card-title">Bottle with Black Cap</h5>
               <form method="post" action="{% url 'products:add_to_cart' 2 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -78,6 +70,7 @@
               <h5 class="card-title">Square Bottle</h5>
               <form method="post" action="{% url 'products:add_to_cart' 3 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -91,6 +84,7 @@
               <h5 class="card-title">Slim Handle Bottle</h5>
               <form method="post" action="{% url 'products:add_to_cart' 4 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -104,6 +98,7 @@
               <h5 class="card-title">Frosted Bottle</h5>
               <form method="post" action="{% url 'products:add_to_cart' 5 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -118,6 +113,7 @@
               <h5 class="card-title">Minimalist Notebook</h5>
               <form method="post" action="{% url 'products:add_to_cart' 6 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -131,6 +127,7 @@
               <h5 class="card-title">Notebook2</h5>
               <form method="post" action="{% url 'products:add_to_cart' 12 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -144,6 +141,7 @@
               <h5 class="card-title">Notebook3</h5>
               <form method="post" action="{% url 'products:add_to_cart' 13 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -158,6 +156,7 @@
               <h5 class="card-title">Orange & White T-shirt</h5>
               <form method="post" action="{% url 'products:add_to_cart' 14 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -169,8 +168,10 @@
             <img src="/media/products/T-shirt2.jpeg" class="card-img-top" alt="T-shirt">
             <div class="card-body text-center">
               <h5 class="card-title">T-shirt</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 11 %}">
+              <form method="post"
+               action="{% url 'products:add_to_cart' 11 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -184,6 +185,7 @@
               <h5 class="card-title">Black T-shirt</h5>
               <form method="post" action="{% url 'products:add_to_cart' 15 %}">
                 {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -194,99 +196,37 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<style>
-  .filter-btn.active {
-    background-color: #343a40;
-    color: white;
-  }
-  .product-card {
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    display: none;
-  }
-  .product-card.show {
-    opacity: 1;
-    display: block;
-  }
-</style>
-
+{% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message }}");
+        {% endfor %}
+    </script>
+{% endif %}
 <script>
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".filter-btn");
+    const cards = document.querySelectorAll(".product-card");
 
-document.addEventListener("DOMContentLoaded", function () {
-  const productCards = document.querySelectorAll('.product-card');
-  const filterButtons = document.querySelectorAll(".filter-btn");
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        const category = button.getAttribute("data-category");
 
-  filterButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const category = btn.dataset.category;
-      filterButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      filterCategory(category);
+        cards.forEach(card => {
+          const cardCategory = card.getAttribute("data-category");
+
+          if (category === "all" || cardCategory === category) {
+            card.style.display = "block";
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        // Highlight active button (optional)
+        buttons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+      });
     });
   });
-
-  if (filterButtons.length > 0) {
-    filterButtons[0].classList.add("active");
-    filterCategory(filterButtons[0].dataset.category);
-  }
-});
-
-function filterCategory(category) {
-  const cards = document.querySelectorAll('.product-card');
-  cards.forEach(card => {
-    const cat = card.getAttribute('data-category');
-    if (category === "All" || cat === category) {
-      card.style.display = '';
-      card.classList.add('show');
-    } else {
-      card.style.display = 'none';
-      card.classList.remove('show');
-    }
-  });
-}
-
-function updateQuantity(itemId, action) {
-  fetch(`/products/update/${itemId}/${action}/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': getCookie('csrftoken'),
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      const qtySpan = document.querySelector(`[data-item-id='${itemId}'] .item-qty`);
-      if (qtySpan) qtySpan.textContent = data.quantity;
-
-      const subtotalSpan = document.getElementById("cart-subtotal");
-      if (subtotalSpan && data.subtotal !== undefined) {
-        subtotalSpan.textContent = `₹${data.subtotal}`;
-      }
-
-      if (data.quantity === 0) {
-        const itemBlock = document.querySelector(`#cart-items [data-item-id='${itemId}']`);
-        if (itemBlock) itemBlock.remove();
-      }
-    }
-  });
-}
 </script>
 {% endblock %}

@@ -8,9 +8,9 @@ from django.core.mail import send_mail
 from collections import defaultdict
 import uuid
 
-from .models import Product, CustomBox, DeliveryAddress
-from .forms import DeliveryAddressForm
+from .models import Product
 from cart.models import CartItem
+from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
 
 
@@ -21,53 +21,47 @@ def choose_box(request):
         return redirect('products:choose_items')
     return render(request, 'products/choose_box.html')
 
-def choose_items(request):  # default is T-shirt
-    products = Product.objects.filter(type__in=['T-shirts', 'Notebooks', 'Water Bottles'])
+
+@login_required
+def choose_items(request):
+    selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
+    categories = ['T-shirts', 'Notebooks', 'Water Bottles']
+    products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
     cart_total = sum(item.calc_subtotal() for item in cart_items)
-    categories = ['T-shirts', 'Notebooks', 'Water Bottles']
 
     return render(request, 'products/choose_items.html', {
         'products': products,
         'cart_items': cart_items,
         'cart_total': cart_total,
         'categories': categories,
+        'selected_category': selected_category,
     })
 
 
+@login_required
 def add_to_cart(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id)
+        category = product.type
+        existing_item = CartItem.objects.filter(user=request.user, product__type=category).first()
+
+        if existing_item:
+            messages.warning(request, f"You can only add one product from {category}. Please remove the existing item to add another.")
+            return redirect('products:choose_items')
+
         quantity = int(request.POST.get('quantity', 1))
+        CartItem.objects.create(user=request.user, product=product, quantity=quantity)
+        messages.success(request, f"{product.name} added to cart.")
+        return redirect('products:choose_items')
 
-        cart = request.session.get('cart', {})
 
-        cart[str(product_id)] = cart.get(str(product_id), 0) + quantity
-        request.session['cart'] = cart
-
-        return redirect('products:choose_items')  # Redirect to refresh cart display
-
-def cart_summary_ajax(request):
-    cart_items = CartItem.objects.filter(user=request.user)
-    cart_total = sum(item.quantity * item.product.price for item in cart_items)
-    html = render_to_string('products/cart_summary.html', {
-        'cart_items': cart_items,
-        'cart_total': cart_total
-    })
-    return JsonResponse({'html': html})
-
-def cart_view(request):
-    cart_items = CartItem.objects.filter(user=request.user)
-    grouped_cart = defaultdict(list)
-
-    for item in cart_items:
-        if item.product.category:
-            grouped_cart[item.product.category.name].append(item)
-
-    return render(request, 'cart/cart.html', {
-        'cart_items': cart_items,
-        'grouped_cart': grouped_cart,
-    })
+@login_required
+def remove_cart_item(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, user=request.user)
+    item.delete()
+    messages.success(request, "Item removed from cart.")
+    return redirect('products:choose_items')
 
 
 @login_required
@@ -88,11 +82,18 @@ def update_cart_item(request, item_id, action):
 
 
 @login_required
-def remove_cart_item(request, item_id):
-    item = get_object_or_404(CartItem, id=item_id, user=request.user)
-    item.delete()
-    messages.success(request, "Item removed from cart.")
-    return redirect('cart:cart')
+def cart_view(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    grouped_cart = defaultdict(list)
+
+    for item in cart_items:
+        if item.product.category:
+            grouped_cart[item.product.category.name].append(item)
+
+    return render(request, 'cart/cart.html', {
+        'cart_items': cart_items,
+        'grouped_cart': grouped_cart,
+    })
 
 
 @login_required
@@ -100,6 +101,16 @@ def clear_cart(request):
     CartItem.objects.filter(user=request.user).delete()
     messages.success(request, "Cart cleared.")
     return redirect('cart:cart')
+
+
+def cart_summary_ajax(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    cart_total = sum(item.quantity * item.product.price for item in cart_items)
+    html = render_to_string('products/cart_summary.html', {
+        'cart_items': cart_items,
+        'cart_total': cart_total
+    })
+    return JsonResponse({'html': html})
 
 
 def magic_created(request):
