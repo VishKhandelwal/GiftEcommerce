@@ -45,7 +45,7 @@ def add_to_cart(request, product_id):
 
         # ✅ Rule 1: Limit total cart items to 3
         cart_items_count = CartItem.objects.filter(user=request.user).count()
-        if cart_items_count > 4:
+        if cart_items_count < 4:
             messages.warning(
                 request,
                 "You can only add 3 items in total. Please remove an item to add another."
