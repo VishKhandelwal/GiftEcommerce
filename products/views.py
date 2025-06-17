@@ -43,7 +43,16 @@ def add_to_cart(request, product_id):
         product = get_object_or_404(Product, id=product_id)
         category = product.type
 
-        # Rule: Only one product per category
+        # ✅ Rule 1: Limit total cart items to 3
+        cart_items_count = CartItem.objects.filter(user=request.user).count()
+        if cart_items_count >= 3:
+            messages.warning(
+                request,
+                "You can only add 3 items in total. Please remove an item to add another."
+            )
+            return redirect('products:choose_items')
+
+        # ✅ Rule 2: Only one product per category
         if CartItem.objects.filter(user=request.user, product__type=category).exists():
             messages.warning(
                 request,
@@ -61,6 +70,7 @@ def add_to_cart(request, product_id):
         return redirect('products:choose_items')
 
     return redirect('products:choose_items')
+
 
 
 
