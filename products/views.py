@@ -40,22 +40,36 @@ def choose_items(request):
 
 
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    cart = request.session.get('cart', {})
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=product_id)
+        category = product.type
 
-    # Check if any product in the cart is from the same category
-    for pid in cart.keys():
-        existing_product = Product.objects.get(id=pid)
-        if existing_product.category == product.category:
-            messages.error(request, f"You can only add one product per category: {product.category}")
-            return redirect('choose_items')
+        # Rule: Only one product per category
+        if CartItem.objects.filter(user=request.user, product__type=category).exists():
+            messages.warning(
+                request,
+                f"You can only add one product from the '{category}' category. "
+                "Please remove the existing item to add another."
+            )
+            return redirect('products:choose_items')
 
-    # Add product to cart
-    cart[str(product.id)] = {'quantity': 1}
-    request.session['cart'] = cart
-    messages.success(request, f"{product.name} added to cart")
-    return redirect('choose_items')
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1
 
+        CartItem.objects.create(user=request.user, product=product, quantity=quantity)
+        messages.success(request, f"{product.name} added to cart.")
+        return redirect('products:choose_items')
+
+    return redirect('products:choose_items')
+
+
+
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, user=request.user)
+    cart_item.delete()
+    messages.success(request, f"{cart_item.product.name} removed from cart.")
+    return redirect('products:choose_items')
 
 
 @login_required
