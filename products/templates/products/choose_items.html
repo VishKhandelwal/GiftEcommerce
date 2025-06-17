@@ -196,37 +196,44 @@
     </div>
   </div>
 </div>
-{% if messages %}
-    <script>
-        {% for message in messages %}
-            alert("{{ message }}");
-        {% endfor %}
-    </script>
-{% endif %}
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".filter-btn");
     const cards = document.querySelectorAll(".product-card");
 
+    const defaultCategory = "T-shirts";
+
+    function filterByCategory(category) {
+      cards.forEach(card => {
+        const cardCategory = card.getAttribute("data-category");
+
+        if (category === "all" || cardCategory === category) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Highlight the active button
+      buttons.forEach(btn => btn.classList.remove("active"));
+      const activeBtn = document.querySelector(`.filter-btn[data-category="${category}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add("active");
+      }
+    }
+
+    // Bind click events
     buttons.forEach(button => {
       button.addEventListener("click", () => {
         const category = button.getAttribute("data-category");
-
-        cards.forEach(card => {
-          const cardCategory = card.getAttribute("data-category");
-
-          if (category === "all" || cardCategory === category) {
-            card.style.display = "block";
-          } else {
-            card.style.display = "none";
-          }
-        });
-
-        // Highlight active button (optional)
-        buttons.forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
+        filterByCategory(category);
       });
     });
+
+    // Initial filter when page loads
+    filterByCategory(defaultCategory);
   });
 </script>
+
 {% endblock %}
