@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser
+from .models import CustomUser, UniqueCode  # Import both properly
 from django.utils import timezone
 from datetime import timedelta
-from accounts.models import CustomUser as UniqueCode
+
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -25,8 +25,21 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(CustomUser, CustomUserAdmin)
 
 
-expired_codes = UniqueCode.objects.filter(
-    assigned_time__lt=timezone.now() - timedelta(days=7),
-    is_used=False
-)
+# ❌ DO NOT DO THIS
+# expired_codes = UniqueCode.objects.filter(...)
 
+# ✅ Instead, define a method or view to access expired codes if needed
+class UniqueCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'assigned_to', 'assigned_time', 'is_used')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs
+
+    def get_expired_codes(self):
+        return UniqueCode.objects.filter(
+            assigned_time__lt=timezone.now() - timedelta(days=7),
+            is_used=False
+        )
+
+admin.site.register(UniqueCode, UniqueCodeAdmin)

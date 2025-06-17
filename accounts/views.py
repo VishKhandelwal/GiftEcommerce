@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils import timezone
 import random
-from accounts.models import CustomUser as User, UniqueCode
+from accounts.models import UniqueCode
 from .otp_utils import send_otp
 from django.template.loader import render_to_string
 from datetime import timedelta
@@ -26,32 +26,40 @@ def login_view(request):
         user.otp = otp
         user.save()
 
+        # Store OTP and email in session
         request.session['otp'] = otp
         request.session['email'] = email
 
-        # Fetch reusable code assigned to this email if not expired
+        # Step 1: Check if a code is already assigned and not expired
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
+
         if code_obj and code_obj.assigned_time:
             expiry_time = code_obj.assigned_time + timedelta(days=7)
             if timezone.now() > expiry_time:
-                # Mark old code as used (expired)
                 code_obj.is_used = True
                 code_obj.save()
-                code_obj = None  # Force fetch a new code
+                code_obj = None  # Expired, so nullify
 
-        # Assign a new code if none available or expired
+        # Step 2: Try to reuse an expired assigned code (for the same user)
         if not code_obj:
             code_obj = UniqueCode.objects.filter(
                 assigned_to=email,
                 is_used=False,
                 assigned_time__lt=timezone.now() - timedelta(days=7)
-                ).first()
+            ).first()
+
+        # Step 3: Try to assign a completely fresh unused, unassigned code
+        if not code_obj:
+            code_obj = UniqueCode.objects.filter(
+                assigned_to__isnull=True,
+                is_used=False
+            ).first()
             if code_obj:
                 code_obj.assigned_to = email
                 code_obj.assigned_time = timezone.now()
                 code_obj.save()
 
-        # Email context
+        # Prepare email context
         context = {
             'otp': otp,
             'unique_code': code_obj.code if code_obj else None,
@@ -74,6 +82,7 @@ def login_view(request):
         return render(request, 'accounts/verify.html', {'email': email})
 
     return render(request, 'accounts/login.html')
+
 
 
 # Step 2: Verify OTP
