@@ -66,10 +66,10 @@ def add_to_cart(request, product_id):
     return redirect('products:choose_items')
 
 
-def remove_cart_item(request, item_id):
-    item = get_object_or_404(CartItem, id=item_id, user=request.user)
-    item.delete()
-    messages.success(request, "Item removed from cart.")
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, user=request.user)
+    cart_item.delete()
+    messages.success(request, f"{cart_item.product.name} removed from cart.")
     return redirect('products:choose_items')
 
 
