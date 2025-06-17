@@ -39,11 +39,6 @@ def choose_items(request):
     })
 
 
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .models import Product, CartItem
-
 @login_required
 def add_to_cart(request, product_id):
     if request.method == 'POST':
