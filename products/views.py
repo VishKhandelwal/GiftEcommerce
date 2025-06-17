@@ -39,24 +39,33 @@ def choose_items(request):
     })
 
 
-@login_required
 def add_to_cart(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id)
         category = product.type
+
+        # Check if user already has a product from this category in the cart
         existing_item = CartItem.objects.filter(user=request.user, product__type=category).first()
 
         if existing_item:
-            messages.warning(request, f"You can only add one product from {category}. Please remove the existing item to add another.")
+            messages.warning(
+                request,
+                f"You can only add one product from the '{category}' category. "
+                "Please remove the existing item to add a new one."
+            )
             return redirect('products:choose_items')
 
         quantity = int(request.POST.get('quantity', 1))
+        if quantity < 1:
+            quantity = 1  # Prevent zero or negative quantities
+
         CartItem.objects.create(user=request.user, product=product, quantity=quantity)
         messages.success(request, f"{product.name} added to cart.")
         return redirect('products:choose_items')
 
+    return redirect('products:choose_items')
 
-@login_required
+
 def remove_cart_item(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, user=request.user)
     item.delete()
