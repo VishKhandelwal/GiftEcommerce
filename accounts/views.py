@@ -41,7 +41,11 @@ def login_view(request):
 
         # Assign a new code if none available or expired
         if not code_obj:
-            code_obj = UniqueCode.objects.filter(is_used=False, assigned_to__isnull=True).first()
+            code_obj = UniqueCode.objects.filter(
+                assigned_to=email,
+                is_used=False,
+                assigned_time__lt=timezone.now() - timedelta(days=7)
+                ).first()
             if code_obj:
                 code_obj.assigned_to = email
                 code_obj.assigned_time = timezone.now()
