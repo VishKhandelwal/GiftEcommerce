@@ -166,6 +166,18 @@
               <form method="post" action="{% url 'products:add_to_cart' 14 %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
+                <label for="size-14">Size</label>
+                  <select name="size" id="size-14" class="form-control" required>
+                    <option value="">Select Size</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                  </select>
+                </div>
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -181,6 +193,18 @@
                action="{% url 'products:add_to_cart' 11 %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
+                <label for="size-14">Size</label>
+                  <select name="size" id="size-14" class="form-control" required>
+                    <option value="">Select Size</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                  </select>
+                </div>
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>
@@ -195,6 +219,19 @@
               <form method="post" action="{% url 'products:add_to_cart' 15 %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
+                <div class="form-group mb-2">
+                  <label for="size-14">Size</label>
+                  <select name="size" id="size-14" class="form-control" required>
+                    <option value="">Select Size</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="XXXL">XXXL</option>
+                  </select>
+                </div>
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
             </div>

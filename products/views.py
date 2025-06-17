@@ -42,6 +42,7 @@ def add_to_cart(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id)
         category = product.type
+        size = request.POST.get('size')  # 🔸 Get size if submitted
 
         # ✅ Rule 1: Limit total cart items to 3
         cart_items_count = CartItem.objects.filter(user=request.user).count()
@@ -65,7 +66,14 @@ def add_to_cart(request, product_id):
         if quantity < 1:
             quantity = 1
 
-        CartItem.objects.create(user=request.user, product=product, quantity=quantity)
+        # 🔸 Save size if provided
+        CartItem.objects.create(
+            user=request.user,
+            product=product,
+            quantity=quantity,
+            size=size
+        )
+
         messages.success(request, f"{product.name} added to cart.")
         return redirect('products:choose_items')
 

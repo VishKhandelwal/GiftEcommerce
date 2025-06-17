@@ -18,6 +18,8 @@ class CartItem(models.Model):
     )
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
+    size = models.CharField(max_length=10, null=True, blank=True)  # <-- Add this
+
 
     def calc_subtotal(self):
         return self.quantity * self.product.price
