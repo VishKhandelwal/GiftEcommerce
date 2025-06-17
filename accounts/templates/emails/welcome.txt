@@ -1,0 +1,13 @@
+Hey There!
+
+We’re glad to have you onboard with us.
+
+As a welcome gift, please redeem your gift hamper using the details below:
+
+OTP: {{ otp }}
+{% if unique_code %}Unique Code: {{ unique_code }}{% else %}(No Unique Code available currently){% endif %}
+
+Note: This link will be valid for 1 week only.
+
+Cheers,
+Team Infinity

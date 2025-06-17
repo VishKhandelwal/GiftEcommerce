@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
+from django.utils import timezone
+from datetime import timedelta
+from accounts.models import CustomUser as UniqueCode
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -19,5 +22,11 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
-
 admin.site.register(CustomUser, CustomUserAdmin)
+
+
+expired_codes = UniqueCode.objects.filter(
+    assigned_time__lt=timezone.now() - timedelta(days=7),
+    is_used=False
+)
+

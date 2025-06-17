@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 import uuid
 import random
 from django.utils import timezone
+from datetime import timedelta
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -68,10 +69,12 @@ class OTP(models.Model):
 
 
 class UniqueCode(models.Model):
-    code = models.CharField(max_length=100, unique=True)
-    is_used = models.BooleanField(default=False)
+    code = models.CharField(max_length=20, unique=True)
     assigned_to = models.EmailField(null=True, blank=True)
     assigned_time = models.DateTimeField(null=True, blank=True)
+    is_used = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.code
+    def is_expired(self):
+        if not self.assigned_time:
+            return False
+        return timezone.now() > self.assigned_time + timedelta(days=7)
