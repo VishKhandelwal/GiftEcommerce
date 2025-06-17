@@ -15,12 +15,12 @@ class Product(models.Model):
     CATEGORY_CHOICES = [
         ('T-shirts', 'T-shirts'),
         ('Notebooks', 'Notebooks'),
-        ('Water Bottles', 'Water Bottles'),
+        ('Bottles', 'Bottles'),
     ]
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     price = models.IntegerField(default=0)
-    type = models.CharField(max_length=100, choices=[("T-shirts", "T-shirts"), ("Notebooks", "Notebooks"), ("Water Bottles", "Water Bottles")])
+    type = models.CharField(max_length=100, choices=[("T-shirts", "T-shirts"), ("Notebooks", "Notebooks"), ("Bottles", "Bottles")])
     image = models.ImageField(upload_to='products/')
     is_customizable = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

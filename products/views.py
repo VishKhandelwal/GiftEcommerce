@@ -22,10 +22,9 @@ def choose_box(request):
     return render(request, 'products/choose_box.html')
 
 
-@login_required
 def choose_items(request):
     selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
-    categories = ['T-shirts', 'Notebooks', 'Water Bottles']
+    categories = ['T-shirts', 'Notebooks', 'Bottles']
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
     cart_total = sum(item.calc_subtotal() for item in cart_items)
