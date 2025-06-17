@@ -39,31 +39,36 @@ def choose_items(request):
     })
 
 
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Product, CartItem
+
+@login_required
 def add_to_cart(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id)
         category = product.type
 
-        # Check if user already has a product from this category in the cart
-        existing_item = CartItem.objects.filter(user=request.user, product__type=category).first()
-
-        if existing_item:
+        # Rule: Only one product per category
+        if CartItem.objects.filter(user=request.user, product__type=category).exists():
             messages.warning(
                 request,
                 f"You can only add one product from the '{category}' category. "
-                "Please remove the existing item to add a new one."
+                "Please remove the existing item to add another."
             )
             return redirect('products:choose_items')
 
         quantity = int(request.POST.get('quantity', 1))
         if quantity < 1:
-            quantity = 1  # Prevent zero or negative quantities
+            quantity = 1
 
         CartItem.objects.create(user=request.user, product=product, quantity=quantity)
         messages.success(request, f"{product.name} added to cart.")
         return redirect('products:choose_items')
 
     return redirect('products:choose_items')
+
 
 
 def remove_from_cart(request, cart_item_id):
