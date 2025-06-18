@@ -19,7 +19,7 @@ def track_order_view(request):
     message = ""
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
-        order = Order.objects.filter(order_id=order_id).first()
+        order = Order.objects.filter(id=order_id).first()
         if not order:
             message = "Invalid Order ID"
     return render(request, 'orders/track_order.html', {'order': order, 'message': message})
@@ -27,5 +27,27 @@ def track_order_view(request):
 def my_orders_view(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'orders/my_orders.html', {'orders': orders})
+
+from django.shortcuts import render
+
+def admin_dashboard(request):
+    from orders.models import Order  # Lazy import avoids circular dependency
+
+    total_orders = Order.objects.count()
+    pending_orders = Order.objects.filter(status='pending').count()
+    processing_orders = Order.objects.filter(status='processing').count()
+    in_transit_orders = Order.objects.filter(status='in_transit').count()
+    delivered_orders = Order.objects.filter(status='delivered').count()
+
+    context = {
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'processing_orders': processing_orders,
+        'in_transit_orders': in_transit_orders,
+        'delivered_orders': delivered_orders,
+    }
+
+    return render(request, 'dashboard/admin_dashboard.html', context)
+
 
 

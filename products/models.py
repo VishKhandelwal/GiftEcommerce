@@ -46,8 +46,8 @@ class CustomBox(models.Model):
 class DeliveryAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100, blank=True, default="")
-    phone_number = models.CharField(max_length=15, blank=True, default="")
-    pincode = models.CharField(max_length=10, blank=True, default="")
+    phone_number = models.CharField(max_length=15)
+    pincode = models.CharField(max_length=10)
     city = models.CharField(max_length=50, blank=True, default="")
     state = models.CharField(max_length=50, blank=True, default="")
     address = models.TextField(blank=True, default="")

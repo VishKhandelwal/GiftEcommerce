@@ -174,19 +174,27 @@ def generate_unique_order_id():
     return str(uuid.uuid4()).replace("-", "").upper()[:12]
 
 
-@login_required
 def checkout_success(request):
     user = request.user
     items = user.cart_items.all()
     total = sum(item.calc_subtotal() for item in items)
 
     otp = get_random_string(6, allowed_chars='0123456789')
-    order_id = generate_unique_order_id()
-    while Order.objects.filter(order_id=order_id).exists():
-        order_id = generate_unique_order_id()
 
-    order = Order.objects.create(user=user, total=total, otp=otp, order_id=order_id)
+    # Ensure order ID uniqueness only if you're generating a custom field (not needed for auto `id`)
+    # If you do have a custom `order_id` field, uncomment and adapt this
+    # order_id = generate_unique_order_id()
+    # while Order.objects.filter(order_id=order_id).exists():
+    #     order_id = generate_unique_order_id()
 
+    # Create order
+    order = Order.objects.create(
+        user=user,
+        total_price=total,
+        otp=otp  # Only if your Order model has an `otp` field
+    )
+
+    # Create order items
     for item in items:
         OrderItem.objects.create(
             order=order,
@@ -197,13 +205,17 @@ def checkout_success(request):
             user=user,
         )
 
+    # Clear cart
     items.delete()
+
+    # Store in session
     request.session['order_id'] = order.id
     request.session['otp'] = otp
 
+    # Send confirmation email
     send_mail(
         subject='Your Order Confirmation',
-        message=f'Thank you for your purchase!\nOrder ID: {order.order_id}\nOTP for tracking: {otp}',
+        message=f'Thank you for your purchase!\nOrder ID: {order.id}\nOTP for tracking: {otp}',
         from_email='hello@theinfinitybox.in',
         recipient_list=[user.email],
         fail_silently=True,
