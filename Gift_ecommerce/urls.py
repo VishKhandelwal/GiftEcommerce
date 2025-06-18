@@ -26,8 +26,6 @@ def home(request):
     return redirect('/products/custombox/choose_box/')
 
 
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home), 

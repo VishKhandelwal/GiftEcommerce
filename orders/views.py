@@ -19,7 +19,7 @@ def track_order_view(request):
     message = ""
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
-        order = Order.objects.filter(id=order_id).first()
+        order = Order.objects.filter(order_id=order_id).first()
         if not order:
             message = "Invalid Order ID"
     return render(request, 'orders/track_order.html', {'order': order, 'message': message})
