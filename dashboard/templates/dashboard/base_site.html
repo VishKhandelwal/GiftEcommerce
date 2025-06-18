@@ -1,0 +1,10 @@
+{# templates/admin/base_site.html #}
+{% extends "admin/base.html" %}
+{% block title %}Django Admin{% endblock %}
+<a href="{% url 'dashboard:admin_dashboard' %}">Custom Dashboard</a>
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">Django Admin</a> |
+  <a href="{% url 'dashboard:admin_dashboard' %}">Custom Dashboard</a>
+</h1>
+{% endblock %}
