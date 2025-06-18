@@ -15,6 +15,8 @@ def dashboard_view(request):
     in_transit_orders = Order.objects.filter(status='in_transit').count()
     delivered_orders = Order.objects.filter(status='delivered').count()
 
+    recent_orders = Order.objects.order_by('-created_at')[:5]
+
     context = {
         'total_orders': total_orders,
         'pending_orders': pending_orders,
