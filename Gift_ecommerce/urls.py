@@ -33,7 +33,7 @@ urlpatterns = [
     path('products/', include(('products.urls', 'products'), namespace='products')),
     path('cart/', include('cart.urls', namespace='cart')),
     path('orders/', include('orders.urls')),
-    path('admin-dashboard/', include('admin_dashboard.urls')),
+    path('admin-dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
     path('', include('pages.urls')),   
 ]
 
