@@ -19,8 +19,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf import settings
-from shortlinks.views import redirect_short_url
 from django.shortcuts import redirect
+from admin_dashboard import views as admin_views
+
 
 def home(request):
     return redirect('/products/custombox/choose_box/')
@@ -34,6 +35,7 @@ urlpatterns = [
     path('cart/', include('cart.urls', namespace='cart')),
     path('orders/', include('orders.urls')),
     path('admin-dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
+    path('admin-dashboard/logout/', admin_views.admin_logout, name='admin_logout'),
     path('', include('pages.urls')),   
 ]
 
