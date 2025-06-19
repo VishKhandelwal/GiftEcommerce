@@ -9,22 +9,21 @@ from django.contrib.auth.models import User
 def is_admin(user):
     return user.is_staff
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
 def admin_login(request):
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_dashboard')
-
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
-        if user and user.is_staff:
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = authenticate(request, email=email, password=password)
+        if user is not None and user.is_staff:
             login(request, user)
-            return redirect('admin_dashboard')
+            return redirect('admin_dashboard:dashboard')  # Adjust as needed
         else:
-            messages.error(request, "Invalid credentials or unauthorized access")
-
-    return render(request, 'admin_dashboard/login.html')
+            messages.error(request, "Invalid credentials.")
+    return render(request, "admin_dashboard/login.html")
 
 @login_required(login_url='admin_login')
 @user_passes_test(is_admin)
