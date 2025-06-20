@@ -86,6 +86,8 @@ def login_view(request):
 
 
 # Step 2: Verify OTP
+User = get_user_model()
+
 def verify_otp(request):
     if request.method == "POST":
         input_otp = request.POST.get("otp")
@@ -100,9 +102,13 @@ def verify_otp(request):
             })
 
         if input_otp == session_otp and email:
-            user, _ = User.objects.get_or_create(email=email, username=email)
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                user = User.objects.create_user(email=email, username=email)
+
             login(request, user)
-            return redirect("products:choose_box")  # Redirect after successful login
+            return redirect("products:choose_box")
         else:
             return render(request, "accounts/verify.html", {
                 "email": email,
@@ -110,14 +116,6 @@ def verify_otp(request):
             })
 
     return render(request, "accounts/verify.html")
-
-def resend_otp(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        if email:
-            send_otp(email)
-            return redirect('accounts:login')
-    return redirect('accounts:login')
 
 # Step 3: Logout
 def logout_view(request):
