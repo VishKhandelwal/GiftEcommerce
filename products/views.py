@@ -38,22 +38,27 @@ def choose_items(request):
     })
 
 
+@login_required(login_url='accounts:login')  # Ensure only logged-in users access this
 def add_to_cart(request, product_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, id=product_id)
         category = product.type
-        size = request.POST.get('size')  # 🔸 Get size if submitted
+        size = request.POST.get('size')
+        quantity = int(request.POST.get('quantity', 1))
 
-        # ✅ Rule 1: Limit total cart items to 3
+        if quantity < 1:
+            quantity = 1
+
+        # Rule 1: Limit total cart items to 3
         cart_items_count = CartItem.objects.filter(user=request.user).count()
-        if cart_items_count > 4:
+        if cart_items_count >= 3:
             messages.warning(
                 request,
-                "You can only add 3 items in total. Please remove an item to add another."
+                "You can only add up to 3 items in total. Please remove an item to add another."
             )
             return redirect('products:choose_items')
 
-        # ✅ Rule 2: Only one product per category
+        # Rule 2: Only one product per category
         if CartItem.objects.filter(user=request.user, product__type=category).exists():
             messages.warning(
                 request,
@@ -62,11 +67,7 @@ def add_to_cart(request, product_id):
             )
             return redirect('products:choose_items')
 
-        quantity = int(request.POST.get('quantity', 1))
-        if quantity < 1:
-            quantity = 1
-
-        # 🔸 Save size if provided
+        # Save to cart
         CartItem.objects.create(
             user=request.user,
             product=product,
