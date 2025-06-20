@@ -242,7 +242,20 @@
     </div>
   </div>
 </div>
+<style>
+.card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+}
 
+.card-body {
+  flex-grow: 1;
+}
+</style>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".filter-btn");
