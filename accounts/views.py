@@ -9,6 +9,10 @@ from .otp_utils import send_otp
 from django.template.loader import render_to_string
 from datetime import timedelta
 import random
+from django.conf import settings
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
 
 
 User = get_user_model()
@@ -116,6 +120,35 @@ def verify_otp(request):
             })
 
     return render(request, "accounts/verify.html")
+
+def resend_otp(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+
+        if not email:
+            return render(request, "accounts/verify.html", {
+                "error": "Email not provided."
+            })
+
+        # Generate a new OTP
+        otp = generate_otp()
+        request.session["otp"] = otp
+        request.session["email"] = email
+
+        # Send OTP to user's email
+        send_mail(
+            subject="Your OTP Code",
+            message=f"Your OTP is: {otp}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+        )
+
+        return render(request, "accounts/verify.html", {
+            "email": email,
+            "message": "A new OTP has been sent to your email."
+        })
+
+    return redirect("accounts:login")
 
 # Step 3: Logout
 def logout_view(request):
