@@ -176,50 +176,51 @@ def generate_unique_order_id():
 
 
 def checkout_success(request):
-    user = request.user
-    items = user.cart_items.all()
-    total = sum(item.calc_subtotal() for item in items)
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
 
+    user = request.user
+    items = CartItem.objects.filter(user=user)
+
+    if not items.exists():
+        return redirect('cart:view_cart')
+
+    total = sum(item.calc_subtotal() for item in items)
     otp = get_random_string(6, allowed_chars='0123456789')
 
-    # Ensure order ID uniqueness only if you're generating a custom field (not needed for auto `id`)
-    # If you do have a custom `order_id` field, uncomment and adapt this
-    # order_id = generate_unique_order_id()
-    # while Order.objects.filter(order_id=order_id).exists():
-    #     order_id = generate_unique_order_id()
-
-    # Create order
+    # ✅ Create the order
     order = Order.objects.create(
         user=user,
         total_price=total,
-        otp=otp  # Only if your Order model has an `otp` field
+        otp=otp  # Ensure your Order model includes this field
     )
 
-    # Create order items
+    # ✅ Create order items
     for item in items:
         OrderItem.objects.create(
             order=order,
             product=item.product,
             quantity=item.quantity,
-            status='in_transit',
+            status='in_transit',  # You can set this dynamically if needed
             price=item.product.price,
             user=user,
         )
 
-    # Clear cart
+    # ✅ Clear the cart
     items.delete()
 
-    # Store in session
+    # ✅ Store order data in session
     request.session['order_id'] = order.id
     request.session['otp'] = otp
 
-    # Send confirmation email
-    send_mail(
-        subject='Your Order Confirmation',
-        message=f'Thank you for your purchase!\nOrder ID: {order.id}\nOTP for tracking: {otp}',
-        from_email='hello@theinfinitybox.in',
-        recipient_list=[user.email],
-        fail_silently=True,
-    )
+    # ✅ Send confirmation email
+    if user.email:
+        send_mail(
+            subject='Your Order Confirmation',
+            message=f'Thank you for your purchase!\n\nOrder ID: {order.id}\nOTP for tracking: {otp}',
+            from_email='hello@theinfinitybox.in',
+            recipient_list=[user.email],
+            fail_silently=True,
+        )
 
     return render(request, 'cart/checkout_success.html', {'order': order})
