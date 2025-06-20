@@ -11,13 +11,19 @@
     <input type="text" name="otp" class="form-control" required>
   </div>
 
-
   <div class="mb-3">
     <label>Your Unique Code</label>
-    <input type="text" name= "unique_code" class="form-control">
+    <input type="text" name="unique_code" class="form-control">
   </div>
 
-  
+  <!-- ✅ Consent Checkbox -->
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="agree_terms" id="agreeTerms" required>
+    <label class="form-check-label" for="agreeTerms">
+      I agree to share my personal data for placing the order. Though, the data would not be misused for any purpose in the future and is safe with the company.
+    </label>
+  </div>
+
   <button type="submit" class="btn btn-success w-100">Login</button>
 
   {% if error %}

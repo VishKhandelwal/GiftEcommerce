@@ -60,7 +60,6 @@ LOGIN_URL = '/admin-dashboard/login/'
 LOGIN_REDIRECT_URL = '/admin-dashboard/dashboard/'
 
 
-SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 

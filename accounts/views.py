@@ -91,15 +91,25 @@ def verify_otp(request):
         input_otp = request.POST.get("otp")
         session_otp = request.session.get("otp")
         email = request.session.get("email")
+        agreed = request.POST.get("agree_terms")
+
+        if not agreed:
+            return render(request, "accounts/verify.html", {
+                "email": email,
+                "error": "Please agree to the data policy to proceed."
+            })
 
         if input_otp == session_otp and email:
-            user, _ = User.objects.get_or_create(email=email)
+            user, _ = User.objects.get_or_create(email=email, username=email)
             login(request, user)
             return redirect("products:choose_box")  # Redirect after successful login
         else:
-            messages.error(request, "Invalid OTP")
+            return render(request, "accounts/verify.html", {
+                "email": email,
+                "error": "Invalid OTP"
+            })
 
-    return render(request, "accounts/verify.html")  # Re-render on error or GET
+    return render(request, "accounts/verify.html")
 
 def resend_otp(request):
     if request.method == 'POST':
