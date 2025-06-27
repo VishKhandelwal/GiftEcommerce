@@ -34,20 +34,18 @@ def admin_dashboard(request):
     in_transit_orders = Order.objects.filter(status='in_transit').count()
     delivered_orders = Order.objects.filter(status='delivered').count()
 
-    recent_orders = Order.objects.order_by('-order_date')[:5]
-
+    recent_orders = Order.objects.filter(order_date__isnull=False).order_by('-order_date')[:5]
 
     context = {
-    'total_orders': total_orders,
-    'pending_orders': pending_orders,
-    'processing_orders': processing_orders,
-    'in_transit_orders': in_transit_orders,
-    'delivered_orders': delivered_orders,
-    'recent_orders': recent_orders,
-}
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'processing_orders': processing_orders,
+        'in_transit_orders': in_transit_orders,
+        'delivered_orders': delivered_orders,
+        'recent_orders': recent_orders,
+    }
 
-
-    return render(request, 'admin_dashboard/dashboard.html')
+    return render(request, 'admin_dashboard/dashboard.html', context)  # <-- Fixed line
 
 def admin_logout(request):
     logout(request)
