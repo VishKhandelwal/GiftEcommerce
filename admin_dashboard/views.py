@@ -25,7 +25,7 @@ def admin_login(request):
             messages.error(request, "Invalid credentials.")
     return render(request, "admin_dashboard/login.html")
 
-@login_required(login_url='admin_login')
+@login_required(login_url='admin_dashboard:admin_login')
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     total_orders = Order.objects.count()
