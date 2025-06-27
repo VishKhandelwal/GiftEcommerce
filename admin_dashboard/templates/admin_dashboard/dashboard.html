@@ -15,7 +15,7 @@
   </nav>
 
   <div class="container mt-4">
-    <h3>Welcome, {{ request.user.username }}</h3>
+    <h3>Welcome, {{ request.user.get_full_name|default:request.user.email }}</h3>
     <div class="row my-4">
 
       <div class="col-md-4 mb-3">
