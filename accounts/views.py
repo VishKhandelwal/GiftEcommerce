@@ -125,25 +125,30 @@ def resend_otp(request):
     if request.method == "POST":
         email = request.POST.get("email")
 
-        if not email:
+        if not email or email.strip() == "":
             return render(request, "accounts/verify.html", {
-                "error": "Email not provided."
+                "error": "Email not provided or invalid."
             })
 
-        # Generate a new OTP
         otp = generate_otp()
         request.session["otp"] = otp
         request.session["email"] = email
 
-        # Send OTP to user's email
-        send_mail(
-            subject="Your OTP Code",
-            message=f"Your OTP is: {otp}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-        )
+        try:
+            send_mail(
+                subject="Your OTP Code",
+                message=f"Your OTP is: {otp}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            return render(request, "accounts/verify.html", {
+                "email": email,
+                "error": f"Failed to send OTP: {str(e)}"
+            })
 
-        return render(request, "accounts/verify.html", {
+        return render(request, "accounts/login.html", {
             "email": email,
             "message": "A new OTP has been sent to your email."
         })
