@@ -24,7 +24,7 @@ def order_summary_view(request):
 
 def track_order_view(request):
     try:
-        order = Order.objects.filter(user=request.user).latest('created_at')
+        order = Order.objects.filter(user=request.user).latest('order_date')
     except Order.DoesNotExist:
         order = None
 

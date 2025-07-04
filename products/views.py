@@ -210,7 +210,7 @@ def checkout_success(request):
     items = CartItem.objects.filter(user=user)
 
     if not items.exists():
-        return redirect('cart:view_cart')
+        return redirect('products:view_cart')
 
     total = sum(item.calc_subtotal() for item in items)
     otp = get_random_string(6, allowed_chars='0123456789')

@@ -29,8 +29,7 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     shipping_address = models.TextField(default="Not provided")
     otp = models.CharField(max_length=6, blank=True, null=True)  # Optional for tracking
-
-    # New fields for courier tracking
+    created_at = models.DateTimeField(auto_now_add=True)
     courier_name = models.CharField(max_length=100, blank=True, null=True)
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
     estimated_delivery = models.DateField(blank=True, null=True)
