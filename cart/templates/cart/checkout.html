@@ -1,62 +1,80 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load widget_tweaks %}
 
-<h2>Checkout</h2>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Product</th>
-      <th>Qty</th>
-      <th>Price</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in cart_items %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Checkout</h2>
+
+  <!-- 🛒 Cart Summary -->
+  <table class="table table-bordered">
+    <thead class="table-light">
       <tr>
-        <td>{{ item.product.name }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>₹{{ item.product.price }}</td>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Price</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for item in cart_items %}
+        <tr>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>₹{{ item.product.price }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-<h4>Total: ₹{{ total }}</h4>
-
-<!-- ✅ Delivery Address Form -->
-<form method="post">
-  {% csrf_token %}
-  <h5>Delivery Details</h5>
-
-  {{ form.non_field_errors }}
-
-  <div class="mb-2">
-    <label>Full Name</label>
-    {{ form.full_name }}
-  </div>
-  <div class="mb-2">
-    <label>Phone Number</label>
-    {{ form.phone_number }}
-  </div>
-  <div class="mb-2">
-    <label>Pincode</label>
-    {{ form.pincode }}
-  </div>
-  <div class="mb-2">
-    <label>City</label>
-    {{ form.city }}
-  </div>
-  <div class="mb-2">
-    <label>State</label>
-    {{ form.state }}
-  </div>
-  <div class="mb-2">
-    <label>Address</label>
-    {{ form.address }}
+  <div class="text-end">
+    <h4>Total: ₹{{ total }}</h4>
   </div>
 
-  <button type="submit" class="btn btn-success w-100">Place Order</button>
-</form>
+  <hr>
+
+  <!-- 📦 Delivery Address Form -->
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    <h5 class="mb-3">Delivery Details</h5>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="mb-3">
+      <label for="{{ form.full_name.id_for_label }}" class="form-label">Full Name</label>
+      {{ form.full_name|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+      {{ form.phone_number|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.pincode.id_for_label }}" class="form-label">Pincode</label>
+      {{ form.pincode|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+      {{ form.city|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
+      {{ form.state|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+      {{ form.address|add_class:"form-control" }}
+    </div>
+
+    <p class="text-muted mt-3"><strong>Note:</strong> Orders placed before <strong>2:00 PM IST</strong> will be shipped the same day.</p>
+
+    <button type="submit" class="btn btn-success w-100 mt-3">Place Order</button>
+  </form>
+</div>
 
 {% endblock %}

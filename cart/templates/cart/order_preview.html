@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Order Preview</h2>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Item Type</th>
+      <th>Selection</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Box</td>
+      <td>{{ selected_items.Box.product.name if selected_items.Box }}</td>
+      <td><a href="{% url 'products:choose_box' %}" class="btn btn-sm btn-primary">Edit Box</a></td>
+    </tr>
+    <tr>
+      <td>Sipper</td>
+      <td>{{ selected_items.Sipper.product.name if selected_items.Sipper }}</td>
+      <td><a href="{% url 'products:choose_items' %}?category=Bottles" class="btn btn-sm btn-primary">Edit Sipper</a></td>
+    </tr>
+    <tr>
+      <td>Apparel</td>
+      <td>{{ selected_items.Apparel.product.name if selected_items.Apparel }}</td>
+      <td><a href="{% url 'products:choose_items' %}?category=T-shirts" class="btn btn-sm btn-primary">Edit Apparel</a></td>
+    </tr>
+    <tr>
+      <td>Auto-included</td>
+      <td colspan="2">
+        <ul>
+          {% for item in selected_items.AutoIncluded %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="text-end mt-4">
+  <a href="{% url 'products:checkout' %}" class="btn btn-success btn-lg">Proceed to Checkout</a>
+</div>
+
+{% endblock %}

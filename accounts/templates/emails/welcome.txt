@@ -1,13 +1,17 @@
 Hey There!
 
-We’re glad to have you onboard with us.
+We’re excited to welcome you to the Infinity family! 🎉
 
-As a welcome gift, please redeem your gift hamper using the details below:
+Your joining kit is ready to be redeemed
 
-OTP: {{ otp }}
-{% if unique_code %}Unique Code: {{ unique_code }}{% else %}(No Unique Code available currently){% endif %}
+Your OTP: {{ otp }}
+{% if unique_code %}
+Unique Redemption Code: {{ unique_code }}
+{% else %}
+(No Unique Code available at the moment)
+{% endif %}
 
-Note: This link will be valid for 1 week only.
+🔐 This link and code are valid for 14 days only. Please make sure to complete your redemption before it expires.
 
-Cheers,
-Team Infinity
+Thanks,  
+The Infinity Box Team

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Order Summary</h2>
+  {% if request.session.already_redeemed %}
+    <div class="alert alert-info text-center">
+      You’ve already redeemed your joining kit. Below is your order summary.
+    </div>
+  {% endif %}
+
+  {% if order %}
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Total:</strong> ₹{{ order.total_price }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
+  {% else %}
+    <p>No order found.</p>
+  {% endif %}
+
+  <div class="text-center my-3">
+  <a href="{% url 'orders:track_order' %}" class="btn btn-info">Track Order</a>
+</div>
+{% endblock %}

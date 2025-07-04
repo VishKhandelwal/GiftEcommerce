@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'orders',
     'cart',
     'admin_dashboard',
+    'widget_tweaks',
     'pages',
     'shortlinks',
     'django.contrib.sites',

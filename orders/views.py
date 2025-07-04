@@ -13,16 +13,24 @@ User = get_user_model()
 from django.db.models import Count
 from django.contrib.admin.views.main import ChangeList
 from django.contrib import admin
+from .models import Order
+
+def order_summary_view(request):
+    latest_order = Order.objects.filter(user=request.user).last()
+    return render(request, 'orders/summary.html', {
+        'order': latest_order
+    })
+
 
 def track_order_view(request):
-    order = None
-    message = ""
-    if request.method == 'POST':
-        order_id = request.POST.get('order_id')
-        order = Order.objects.filter(order_id=order_id).first()
-        if not order:
-            message = "Invalid Order ID"
-    return render(request, 'orders/track_order.html', {'order': order, 'message': message})
+    try:
+        order = Order.objects.filter(user=request.user).latest('created_at')
+    except Order.DoesNotExist:
+        order = None
+
+    return render(request, 'orders/track_order.html', {
+        'order': order
+    })
 
 def my_orders_view(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')

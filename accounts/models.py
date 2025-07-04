@@ -86,4 +86,4 @@ class UniqueCode(models.Model):
     def is_expired(self):
         if not self.assigned_time:
             return False
-        return timezone.now() > self.assigned_time + timedelta(days=7)
+        return timezone.now() > self.assigned_time + timedelta(days=14)

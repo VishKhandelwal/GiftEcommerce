@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+  <h2 class="text-danger">Your Joining Link Has Expired</h2>
+  <p>The link you used is no longer valid. For security reasons, all links expire after <strong>14 days</strong>.</p>
+  <p>If you believe this is an error, please raise a support ticket.</p>
+
+  <a href="mailto:support@theinfinitybox.in?subject=Joining%20Link%20Expired" class="btn btn-primary mt-3">
+    Raise a Support Ticket
+  </a>
+</div>
+{% endblock %}

@@ -3,56 +3,63 @@ from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils import timezone
-import random
-from accounts.models import UniqueCode
-from .otp_utils import send_otp
+from django.conf import settings
 from django.template.loader import render_to_string
 from datetime import timedelta
 import random
-from django.conf import settings
+from orders.models import Order
+
+from accounts.models import UniqueCode
+from accounts.models import CustomUser as User
+from accounts.utils.unique_code import assign_unique_code_to_email
+
+
+
 
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-
 User = get_user_model()
-from accounts.models import CustomUser as User, UniqueCode
-
-
 
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        otp = str(random.randint(100000, 999999))
+        if not email:
+            return render(request, 'accounts/login.html', {'error': 'Email is required'})
 
-        # Get or create the user
+        otp = generate_otp()
+
         user, _ = User.objects.get_or_create(email=email)
         user.otp = otp
         user.save()
 
-        # Store OTP and email in session
         request.session['otp'] = otp
         request.session['email'] = email
 
-        # Step 1: Check if a code is already assigned and not expired
+        # Check if user already redeemed
+        redeemed = Order.objects.filter(user=user).exists()
+        request.session['already_redeemed'] = redeemed
+
+        # Fetch or assign a unique code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
         if code_obj and code_obj.assigned_time:
-            expiry_time = code_obj.assigned_time + timedelta(days=7)
+            expiry_time = code_obj.assigned_time + timedelta(days=14)
             if timezone.now() > expiry_time:
+                # Code expired
                 code_obj.is_used = True
                 code_obj.save()
-                code_obj = None  # Expired, so nullify
+                return render(request, "accounts/link_expired.html", {"email": email})
 
-        # Step 2: Try to reuse an expired assigned code (for the same user)
+        # Reuse expired assigned code (optional)
         if not code_obj:
             code_obj = UniqueCode.objects.filter(
                 assigned_to=email,
                 is_used=False,
-                assigned_time__lt=timezone.now() - timedelta(days=7)
+                assigned_time__lt=timezone.now() - timedelta(days=14)
             ).first()
 
-        # Step 3: Try to assign a completely fresh unused, unassigned code
+        # Assign new fresh code
         if not code_obj:
             code_obj = UniqueCode.objects.filter(
                 assigned_to__isnull=True,
@@ -63,21 +70,26 @@ def login_view(request):
                 code_obj.assigned_time = timezone.now()
                 code_obj.save()
 
-        # Prepare email context
+        # Still no code available (optional fallback)
+        if not code_obj:
+            return render(request, 'accounts/link_expired.html', {
+                'email': email,
+                'error': 'No unique codes available at the moment.'
+            })
+
+        # Email context
         context = {
             'otp': otp,
-            'unique_code': code_obj.code if code_obj else None,
+            'unique_code': code_obj.code,
         }
 
-        # Load templates
         html_message = render_to_string('emails/welcome.html', context)
         plain_message = render_to_string('emails/welcome.txt', context)
 
-        # Send email
         send_mail(
             subject="🎁 Redeem Your Gift Hamper - Team Infinity",
             message=plain_message,
-            from_email="hello@theinfinitybox.in",
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             html_message=html_message,
             fail_silently=False,
@@ -87,10 +99,8 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
-
-
-# Step 2: Verify OTP
-User = get_user_model()
+# Step 2: OTP Verification + Consent
+from django.urls import reverse
 
 def verify_otp(request):
     if request.method == "POST":
@@ -112,6 +122,15 @@ def verify_otp(request):
                 user = User.objects.create_user(email=email, username=email)
 
             login(request, user)
+
+            # 🔁 Check if user already redeemed their code
+            from accounts.models import UniqueCode
+            code = UniqueCode.objects.filter(assigned_to=email, is_used=True).first()
+
+            if code:
+                request.session['already_redeemed'] = True
+                return redirect('orders:summary')  # redirects to Order Summary
+
             return redirect("products:choose_box")
         else:
             return render(request, "accounts/verify.html", {
@@ -121,6 +140,8 @@ def verify_otp(request):
 
     return render(request, "accounts/verify.html")
 
+
+# Step 3: Resend OTP
 def resend_otp(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -155,7 +176,8 @@ def resend_otp(request):
 
     return redirect("accounts:login")
 
-# Step 3: Logout
+
+# Step 4: Logout
 def logout_view(request):
     logout(request)
     return redirect('accounts:login')

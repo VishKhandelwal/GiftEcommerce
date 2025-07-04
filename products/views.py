@@ -148,10 +148,41 @@ def magic_created(request):
     ]
     return render(request, 'products/magic_created.html', {'steps': steps})
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from cart.models import CartItem
+
+@login_required
+def order_preview(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    if not cart_items.exists():
+        return redirect('products:choose_box')  # Redirect to box selection if cart is empty
+
+    # Categorize selections
+    selected_items = {
+        "Box": cart_items.filter(product__type__icontains='box').first(),
+        "Sipper": cart_items.filter(product__type__icontains='bottle').first(),
+        "Apparel": cart_items.filter(product__type__icontains='t-shirt').first(),
+        "AutoIncluded": ["Stickers", "Welcome Note"]  # You can replace or customize this
+    }
+
+    return render(request, "cart/order_preview.html", {
+        "selected_items": selected_items,
+        "cart_items": cart_items,
+    })
+
+
+def generate_unique_order_id():
+    return str(uuid.uuid4()).replace("-", "").upper()[:12]
+
 
 @login_required
 def checkout_view(request):
     cart_items = CartItem.objects.filter(user=request.user)
+    
+    if not cart_items.exists():
+        return redirect('cart:view_cart')
+
     total = sum(item.calc_subtotal() for item in cart_items)
 
     if request.method == 'POST':
@@ -160,6 +191,8 @@ def checkout_view(request):
             address = form.save(commit=False)
             address.user = request.user
             address.save()
+
+            # Proceed to order creation after saving address
             return redirect('products:checkout_success')
     else:
         form = DeliveryAddressForm()
@@ -171,14 +204,8 @@ def checkout_view(request):
     })
 
 
-def generate_unique_order_id():
-    return str(uuid.uuid4()).replace("-", "").upper()[:12]
-
-
+@login_required
 def checkout_success(request):
-    if not request.user.is_authenticated:
-        return redirect('accounts:login')
-
     user = request.user
     items = CartItem.objects.filter(user=user)
 
@@ -192,35 +219,38 @@ def checkout_success(request):
     order = Order.objects.create(
         user=user,
         total_price=total,
-        otp=otp  # Ensure your Order model includes this field
+        otp=otp  # Make sure the Order model has this field
     )
 
-    # ✅ Create order items
+    # ✅ Create Order Items
     for item in items:
         OrderItem.objects.create(
             order=order,
             product=item.product,
             quantity=item.quantity,
-            status='in_transit',  # You can set this dynamically if needed
             price=item.product.price,
             user=user,
+            status='in_transit'  # Optional: adjust dynamically if needed
         )
 
-    # ✅ Clear the cart
+    # ✅ Clear the cart after successful checkout
     items.delete()
 
-    # ✅ Store order data in session
+    # ✅ Store info in session (if needed)
     request.session['order_id'] = order.id
     request.session['otp'] = otp
 
     # ✅ Send confirmation email
     if user.email:
-        send_mail(
-            subject='Your Order Confirmation',
-            message=f'Thank you for your purchase!\n\nOrder ID: {order.id}\nOTP for tracking: {otp}',
-            from_email='hello@theinfinitybox.in',
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
+        try:
+            send_mail(
+                subject='Your Order Confirmation',
+                message=f'Thank you for your purchase!\n\nOrder ID: {order.id}\nOTP for tracking: {otp}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            print("Email send failed:", e)
 
     return render(request, 'cart/checkout_success.html', {'order': order})
