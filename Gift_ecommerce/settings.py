@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-%e7g3_o!j629t5)aim2inxg(7zh9rbqy9n1*7&z=vna@pda*a+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['infinityforbusiness.com', 'www.infinityforbusiness.com']
+ALLOWED_HOSTS = ['infinityforbusiness.com', 'www.infinityforbusiness.com', '.onrender.com']
 SECURE_SSL_REDIRECT = True  # okay to keep, but avoid forcing host redirects
 
 
