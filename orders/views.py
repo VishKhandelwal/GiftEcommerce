@@ -28,14 +28,13 @@ def order_summary_view(request):
 def track_order_view(request):
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
-        otp = request.POST.get('otp')
 
         try:
-            order = Order.objects.get(id=order_id, otp=otp)
+            order = Order.objects.get(id=order_id)
             return render(request, 'orders/order_tracking_result.html', {'order': order})
         except Order.DoesNotExist:
             return render(request, 'orders/track_order.html', {
-                'error': 'Invalid Order ID or OTP. Please try again.'
+                'error': 'Invalid Order ID. Please try again.'
             })
 
     return render(request, 'orders/track_order.html')

@@ -234,13 +234,13 @@ def checkout_success(request):
         return redirect('products:view_cart')
 
     total = sum(item.calc_subtotal() for item in items)
-    otp = get_random_string(6, allowed_chars='0123456789')
+    
 
     # ✅ Create the order
     order = Order.objects.create(
         user=user,
         total_price=total,
-        otp=otp  # Make sure the Order model has this field
+     # Make sure the Order model has this field
     )
 
     # ✅ Add dispatch logic
@@ -269,7 +269,6 @@ def checkout_success(request):
 
     # ✅ Store info in session
     request.session['order_id'] = order.id
-    request.session['otp'] = otp
 
     # ✅ Send confirmation email
     if user.email:
@@ -279,7 +278,6 @@ def checkout_success(request):
                 message=f'''Thank you for your purchase!
 
 Order ID: {order.id}
-OTP for tracking: {otp}
 Courier: To be updated soon
 Estimated Delivery: {order.estimated_delivery.strftime('%d %b %Y')}
 ''',
