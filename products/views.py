@@ -12,6 +12,8 @@ from .models import Product
 from cart.models import CartItem
 from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
+from django.utils import timezone
+from datetime import timedelta
 
 
 @login_required
@@ -223,7 +225,7 @@ def checkout_view(request):
     })
 
 
-@login_required
+
 def checkout_success(request):
     user = request.user
     items = CartItem.objects.filter(user=user)
@@ -241,6 +243,16 @@ def checkout_success(request):
         otp=otp  # Make sure the Order model has this field
     )
 
+    # ✅ Add dispatch logic
+    now = timezone.localtime()
+    if now.hour < 14:
+        dispatch_date = now.date()
+    else:
+        dispatch_date = now.date() + timedelta(days=1)
+
+    order.estimated_delivery = dispatch_date + timedelta(days=3)  # 3-day delivery
+    order.save()
+
     # ✅ Create Order Items
     for item in items:
         OrderItem.objects.create(
@@ -249,13 +261,13 @@ def checkout_success(request):
             quantity=item.quantity,
             price=item.product.price,
             user=user,
-            status='in_transit'  # Optional: adjust dynamically if needed
+            status='in_transit'
         )
 
-    # ✅ Clear the cart after successful checkout
+    # ✅ Clear the cart
     items.delete()
 
-    # ✅ Store info in session (if needed)
+    # ✅ Store info in session
     request.session['order_id'] = order.id
     request.session['otp'] = otp
 
@@ -264,7 +276,13 @@ def checkout_success(request):
         try:
             send_mail(
                 subject='Your Order Confirmation',
-                message=f'Thank you for your purchase!\n\nOrder ID: {order.id}\nOTP for tracking: {otp}',
+                message=f'''Thank you for your purchase!
+
+Order ID: {order.id}
+OTP for tracking: {otp}
+Courier: To be updated soon
+Estimated Delivery: {order.estimated_delivery.strftime('%d %b %Y')}
+''',
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 fail_silently=False,

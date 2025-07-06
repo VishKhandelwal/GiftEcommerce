@@ -15,6 +15,9 @@ from django.contrib.admin.views.main import ChangeList
 from django.contrib import admin
 from .models import Order
 
+
+
+
 def order_summary_view(request):
     latest_order = Order.objects.filter(user=request.user).last()
     return render(request, 'orders/summary.html', {

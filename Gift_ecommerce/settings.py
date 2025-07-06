@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'products',
     'orders',
     'cart',
+    'support',
     'admin_dashboard',
     'widget_tweaks',
     'pages',

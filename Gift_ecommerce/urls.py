@@ -37,6 +37,8 @@ urlpatterns = [
     path('admin-dashboard/', include('admin_dashboard.urls', namespace='admin_dashboard')),
     path('admin-dashboard/logout/', admin_views.admin_logout, name='admin_logout'),
     path('', include('pages.urls')),   
+    path('support/', include('support.urls')),
+
 ]
 
 if settings.DEBUG:

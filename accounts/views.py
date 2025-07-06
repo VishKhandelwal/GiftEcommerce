@@ -1,26 +1,24 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.urls import reverse
 from datetime import timedelta
 import random
+
+from accounts.models import CustomUser as User, UniqueCode
 from orders.models import Order
 
-from accounts.models import UniqueCode
-from accounts.models import CustomUser as User
-from accounts.utils.unique_code import assign_unique_code_to_email
 
-
-
-
+# Utility: OTP generation
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-User = get_user_model()
 
+# Step 1: Login → Send OTP & Code
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -40,18 +38,18 @@ def login_view(request):
         redeemed = Order.objects.filter(user=user).exists()
         request.session['already_redeemed'] = redeemed
 
-        # Fetch or assign a unique code
+        # Fetch or assign unique code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
+        # Check if existing code is expired
         if code_obj and code_obj.assigned_time:
             expiry_time = code_obj.assigned_time + timedelta(days=14)
             if timezone.now() > expiry_time:
-                # Code expired
                 code_obj.is_used = True
                 code_obj.save()
                 return render(request, "accounts/link_expired.html", {"email": email})
 
-        # Reuse expired assigned code (optional)
+        # Try reusing old unused code
         if not code_obj:
             code_obj = UniqueCode.objects.filter(
                 assigned_to=email,
@@ -59,30 +57,26 @@ def login_view(request):
                 assigned_time__lt=timezone.now() - timedelta(days=14)
             ).first()
 
-        # Assign new fresh code
+        # Try assigning a new unassigned code
         if not code_obj:
-            code_obj = UniqueCode.objects.filter(
-                assigned_to__isnull=True,
-                is_used=False
-            ).first()
+            code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
             if code_obj:
                 code_obj.assigned_to = email
                 code_obj.assigned_time = timezone.now()
                 code_obj.save()
 
-        # Still no code available (optional fallback)
+        # Still no code
         if not code_obj:
             return render(request, 'accounts/link_expired.html', {
                 'email': email,
                 'error': 'No unique codes available at the moment.'
             })
 
-        # Email context
+        # Send email with OTP + code
         context = {
             'otp': otp,
             'unique_code': code_obj.code,
         }
-
         html_message = render_to_string('emails/welcome.html', context)
         plain_message = render_to_string('emails/welcome.txt', context)
 
@@ -92,16 +86,14 @@ def login_view(request):
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             html_message=html_message,
-            fail_silently=False,
         )
 
         return render(request, 'accounts/verify.html', {'email': email})
 
     return render(request, 'accounts/login.html')
 
-# Step 2: OTP Verification + Consent
-from django.urls import reverse
 
+# Step 2: OTP Verification + Consent
 def verify_otp(request):
     if request.method == "POST":
         input_otp = request.POST.get("otp")
@@ -116,27 +108,21 @@ def verify_otp(request):
             })
 
         if input_otp == session_otp and email:
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                user = User.objects.create_user(email=email, username=email)
-
+            user, _ = User.objects.get_or_create(email=email)
             login(request, user)
 
-            # 🔁 Check if user already redeemed their code
-            from accounts.models import UniqueCode
+            # If code already redeemed
             code = UniqueCode.objects.filter(assigned_to=email, is_used=True).first()
-
             if code:
                 request.session['already_redeemed'] = True
-                return redirect('orders:summary')  # redirects to Order Summary
+                return redirect('orders:summary')
 
             return redirect("products:choose_box")
-        else:
-            return render(request, "accounts/verify.html", {
-                "email": email,
-                "error": "Invalid OTP"
-            })
+
+        return render(request, "accounts/verify.html", {
+            "email": email,
+            "error": "Invalid OTP"
+        })
 
     return render(request, "accounts/verify.html")
 
@@ -161,7 +147,6 @@ def resend_otp(request):
                 message=f"Your OTP is: {otp}",
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
-                fail_silently=False,
             )
         except Exception as e:
             return render(request, "accounts/verify.html", {
