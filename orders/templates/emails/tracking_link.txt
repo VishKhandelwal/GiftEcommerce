@@ -1,0 +1,14 @@
+🚚 Your Order Has Been Dispatched!
+
+Hello,
+
+Your order has been dispatched and is on its way.
+
+Tracking Details:
+- Courier Name: {{ courier_name }}
+- Tracking Number: {{ tracking_number }}
+- Tracking Link: {{ tracking_link }}
+- Estimated Delivery: {{ estimated_delivery }}
+
+Thank you for choosing us!
+Team Infinity

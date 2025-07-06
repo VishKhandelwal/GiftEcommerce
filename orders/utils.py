@@ -21,12 +21,13 @@ def send_tracking_email(order):
         'user_email': order.user.email,
     }
 
-    message = render_to_string('emails/tracking_email.html', context)
+    html_message = render_to_string('emails/tracking_email.html', context)
+    plain_message = render_to_string('emails/tracking_email.txt', context)
 
     send_mail(
         subject,
-        message,
+        plain_message,
         settings.DEFAULT_FROM_EMAIL,
         [order.user.email],
-        html_message=message
+        html_message=html_message
     )
