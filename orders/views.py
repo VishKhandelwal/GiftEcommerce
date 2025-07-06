@@ -26,14 +26,19 @@ def order_summary_view(request):
 
 
 def track_order_view(request):
-    try:
-        order = Order.objects.filter(user=request.user).latest('order_date')
-    except Order.DoesNotExist:
-        order = None
+    if request.method == 'POST':
+        order_id = request.POST.get('order_id')
+        otp = request.POST.get('otp')
 
-    return render(request, 'orders/track_order.html', {
-        'order': order
-    })
+        try:
+            order = Order.objects.get(id=order_id, otp=otp)
+            return render(request, 'orders/order_tracking_result.html', {'order': order})
+        except Order.DoesNotExist:
+            return render(request, 'orders/track_order.html', {
+                'error': 'Invalid Order ID or OTP. Please try again.'
+            })
+
+    return render(request, 'orders/track_order.html')
 
 def my_orders_view(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')

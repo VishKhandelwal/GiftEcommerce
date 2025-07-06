@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Order Tracking Details</h2>
+  <p><strong>Order ID:</strong> {{ order.id }}</p>
+  <p><strong>Status:</strong> {{ order.status }}</p>
+  <p><strong>Courier:</strong> {{ order.courier_name }}</p>
+  <p><strong>Tracking Number:</strong> {{ order.tracking_number }}</p>
+  <p><strong>Tracking Link:</strong> <a href="{{ order.tracking_link }}" target="_blank">{{ order.tracking_link }}</a></p>
+  <p><strong>Estimated Delivery:</strong> {{ order.estimated_delivery }}</p>
+</div>
+{% endblock %}
