@@ -37,7 +37,15 @@
   {% endif %}
   <a href="{% url 'products:magic_created' %}" class="btn btn-success mt-2">Next Step</a>
 </div>
-
+<!-- Toast Container -->
+<div id="category-toast" class="toast align-items-center text-white bg-danger border-0 position-fixed bottom-0 end-0 m-4" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999;">
+  <div class="d-flex">
+    <div class="toast-body" id="toast-message">
+      You can only add one item from this category.
+    </div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
 
     <!-- Product Filters & Items -->
       <div id="products" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
@@ -261,32 +269,52 @@
 }
 </style>
 <script>
+
   document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".filter-btn");
     const cards = document.querySelectorAll(".product-card");
+    const forms = document.querySelectorAll("form[action^='/products/add-to-cart']");
+    const toastEl = document.getElementById('category-toast');
+    const toast = new bootstrap.Toast(toastEl);
+
+    const cartItems = Array.from(document.querySelectorAll(".list-group-item")).map(li => {
+      const text = li.textContent.trim();
+      const category = Array.from(cards).find(card => {
+        return card.querySelector(".card-title")?.textContent?.trim() && text.includes(card.querySelector(".card-title").textContent.trim());
+      })?.getAttribute("data-category");
+      return category ? { category } : null;
+    }).filter(Boolean);
 
     const defaultCategory = "T-shirts";
 
     function filterByCategory(category) {
       cards.forEach(card => {
         const cardCategory = card.getAttribute("data-category");
-
-        if (category === "all" || cardCategory === category) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
+        card.style.display = (category === "all" || cardCategory === category) ? "block" : "none";
       });
 
-      // Highlight the active button
       buttons.forEach(btn => btn.classList.remove("active"));
       const activeBtn = document.querySelector(`.filter-btn[data-category="${category}"]`);
-      if (activeBtn) {
-        activeBtn.classList.add("active");
-      }
+      if (activeBtn) activeBtn.classList.add("active");
     }
 
-    // Bind click events
+    function hasCategoryAlreadyInCart(category) {
+      return cartItems.some(item => item.category === category);
+    }
+
+    forms.forEach(form => {
+      form.addEventListener("submit", function (e) {
+        const card = form.closest(".product-card");
+        const category = card.getAttribute("data-category");
+
+        if (hasCategoryAlreadyInCart(category)) {
+          e.preventDefault();
+          document.getElementById('toast-message').textContent = `You can only add one item from ${category}.`;
+          toast.show();
+        }
+      });
+    });
+
     buttons.forEach(button => {
       button.addEventListener("click", () => {
         const category = button.getAttribute("data-category");
@@ -294,7 +322,6 @@
       });
     });
 
-    // Initial filter when page loads
     filterByCategory(defaultCategory);
   });
 </script>

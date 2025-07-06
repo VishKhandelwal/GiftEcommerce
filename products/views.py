@@ -7,7 +7,7 @@ from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from collections import defaultdict
 import uuid
-
+from django.conf import settings
 from .models import Product
 from cart.models import CartItem
 from .forms import DeliveryAddressForm
@@ -22,12 +22,29 @@ def choose_box(request):
     return render(request, 'products/choose_box.html')
 
 
-def choose_items(request):
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.safestring import mark_safe
+import json
+
+def choose_items(request): 
     selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
     categories = ['T-shirts', 'Notebooks', 'Bottles']
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
     cart_total = sum(item.calc_subtotal() for item in cart_items)
+
+    # Prepare cart item categories for JS restriction
+    cart_items_json = json.dumps(
+        [
+            {
+                'id': item.id,
+                'name': item.product.name,
+                'category': item.product.type
+            }
+            for item in cart_items
+        ],
+        cls=DjangoJSONEncoder
+    )
 
     return render(request, 'products/choose_items.html', {
         'products': products,
@@ -35,7 +52,9 @@ def choose_items(request):
         'cart_total': cart_total,
         'categories': categories,
         'selected_category': selected_category,
+        'cart_items_json': mark_safe(cart_items_json),  # for JS to access safely
     })
+
 
 
 @login_required(login_url='accounts:login')  # Ensure only logged-in users access this
