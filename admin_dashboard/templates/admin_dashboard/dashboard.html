@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,104 +18,121 @@
     </div>
   </nav>
 
-  <div class="container mt-4">
-    <h3>Welcome, {{ request.user.get_full_name|default:request.user.email }}</h3>
-    <div class="row my-4">
-
-      <div class="col-md-4 mb-3">
-        <div class="card border-primary">
-          <div class="card-body text-center">
-            <h5 class="card-title">Total Orders</h5>
-            <p class="display-6">{{ total_orders }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <div class="card border-warning">
-          <div class="card-body text-center">
-            <h5 class="card-title">Pending Orders</h5>
-            <p class="display-6 text-warning">{{ pending_orders }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-3">
-        <div class="card border-info">
-          <div class="card-body text-center">
-            <h5 class="card-title">Processing Orders</h5>
-            <p class="display-6 text-info">{{ processing_orders }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <div class="card border-secondary">
-          <div class="card-body text-center">
-            <h5 class="card-title">In Transit</h5>
-            <p class="display-6 text-secondary">{{ in_transit_orders }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <div class="card border-success">
-          <div class="card-body text-center">
-            <h5 class="card-title">Delivered Orders</h5>
-            <p class="display-6 text-success">{{ delivered_orders }}</p>
-          </div>
-        </div>
-      </div>
+  <!-- Filters -->
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-2">
+      <label class="form-label">Month</label>
+      <select name="month" class="form-select">
+        <option value="">All</option>
+        {% for m in "01 02 03 04 05 06 07 08 09 10 11 12".split %}
+          <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+      </select>
     </div>
 
-    <div class="mt-4">
-      <a href="/admin/" class="btn btn-dark">Go to Django Admin Panel</a>
+    <div class="col-md-2">
+      <label class="form-label">Year</label>
+      <select name="year" class="form-select">
+        <option value="">All</option>
+        {% for y in 2023|make_list:3 %}
+          <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-select">
+        <option value="">All</option>
+        <option value="pending" {% if selected_status == "pending" %}selected{% endif %}>Pending</option>
+        <option value="processing" {% if selected_status == "processing" %}selected{% endif %}>Processing</option>
+        <option value="in_transit" {% if selected_status == "in_transit" %}selected{% endif %}>In Transit</option>
+        <option value="delivered" {% if selected_status == "delivered" %}selected{% endif %}>Delivered</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">From</label>
+      <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+    </div>
+
+    <div class="col-md-2">
+      <label class="form-label">To</label>
+      <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+    </div>
+
+    <div class="col-md-2 align-self-end">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </form>
+
+  <!-- Summary Cards -->
+  <div class="row text-center mb-4">
+    <div class="col">
+      <div class="card shadow-sm p-3">
+        <h5>Total Orders</h5>
+        <p class="fs-4">{{ total_orders }}</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow-sm p-3">
+        <h5>Pending</h5>
+        <p class="fs-4 text-warning">{{ pending_orders }}</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow-sm p-3">
+        <h5>Processing</h5>
+        <p class="fs-4 text-info">{{ processing_orders }}</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow-sm p-3">
+        <h5>In Transit</h5>
+        <p class="fs-4 text-primary">{{ in_transit_orders }}</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card shadow-sm p-3">
+        <h5>Delivered</h5>
+        <p class="fs-4 text-success">{{ delivered_orders }}</p>
+      </div>
     </div>
   </div>
 
-  
-</div>
-
-  <div class="card mt-5">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0">Recent Orders</h5>
-  </div>
-  <div class="card-body p-0">
-    <table class="table table-hover mb-0">
-      <thead class="table-light">
+  <!-- Orders Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">User</th>
-          <th scope="col">Order Date</th>
-          <th scope="col">Status</th>
-          <th scope="col">Total Price</th>
+          <th>ID</th>
+          <th>User</th>
+          <th>Total Price</th>
+          <th>Status</th>
+          <th>Order Date</th>
         </tr>
       </thead>
       <tbody>
-        {% for order in recent_orders %}
+        {% for order in orders %}
           <tr>
-            <th scope="row">{{ forloop.counter }}</th>
-            <td>{{ order.user.username }}</td>
-            <td>{{ order.order_date|date:"Y-m-d H:i" }}</td>
-            <td>
-              <span class="badge 
-                {% if order.status == 'pending' %} bg-warning text-dark
-                {% elif order.status == 'processing' %} bg-info text-dark
-                {% elif order.status == 'in_transit' %} bg-secondary
-                {% elif order.status == 'delivered' %} bg-success
-                {% else %} bg-light text-dark
-                {% endif %}
-              ">{{ order.status }}</span>
-            </td>
+            <td>{{ order.id }}</td>
+            <td>{{ order.user.email }}</td>
             <td>₹{{ order.total_price }}</td>
+            <td>{{ order.status|title }}</td>
+            <td>{{ order.order_date|date:"Y-m-d H:i" }}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="5" class="text-center">No recent orders found.</td></tr>
+          <tr>
+            <td colspan="5" class="text-center text-muted">No orders found for the selected filters.</td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-</div>
 
-</body>
-</html>
+  <!-- Manual Order Entry (Placeholder) -->
+  <div class="text-end mt-4">
+    <a href="{% url 'admin_dashboard:manual_order_entry' %}" class="btn btn-success">+ Manual Order Entry</a>
+  </div>
+</div>
+{% endblock %}
