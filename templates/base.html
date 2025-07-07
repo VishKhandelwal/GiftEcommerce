@@ -45,14 +45,16 @@
 }
 
 #help-button {
+  position: fixed;
+  bottom: 20px; /* Push it up from the bottom */
+  right: 20px;  /* Push it in from the right */
+  z-index: 1000;
   background-color: #007bff;
   color: white;
-  padding: 10px 14px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 25px;
   font-weight: bold;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 #help-options {
