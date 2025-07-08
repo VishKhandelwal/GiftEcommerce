@@ -29,7 +29,7 @@ from django.utils.safestring import mark_safe
 import json
 
 def choose_items(request):
-    selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
+    selected_category = request.GET.get('category')  # Default: T-shirts
     categories = ['T-shirts', 'Notebooks', 'Bottles']
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
