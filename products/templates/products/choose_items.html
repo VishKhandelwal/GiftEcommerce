@@ -35,8 +35,11 @@
   {% else %}
     <p>No items in cart.</p>
   {% endif %}
-  <button id="next-step-btn" class="btn btn-success mt-2">Next Step</button>
-
+  <form method="get" id="next-step-form">
+      <input type="hidden" name="category" id="next-category" value="">
+      <button type="submit" class="btn btn-success mt-2">Next Step</button>
+    
+  </form>
 </div>
 <!-- Toast Container -->
 <div id="category-toast" class="toast align-items-center text-white bg-danger border-0 position-fixed top-0 end-0 m-4" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999;">
