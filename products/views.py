@@ -28,7 +28,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 import json
 
-def choose_items(request): 
+def choose_items(request):
     selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
     categories = ['T-shirts', 'Notebooks', 'Bottles']
     products = Product.objects.filter(type=selected_category)

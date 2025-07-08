@@ -274,82 +274,80 @@
 }
 </style>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const buttons = document.querySelectorAll(".filter-btn");
-    const cards = document.querySelectorAll(".product-card");
-    const forms = document.querySelectorAll("form[action^='/products/add-to-cart']");
-    const toastEl = document.getElementById('category-toast');
-    const toast = new bootstrap.Toast(toastEl);
+document.addEventListener("DOMContentLoaded", function () {
+  const buttons = document.querySelectorAll(".filter-btn");
+  const cards = document.querySelectorAll(".product-card");
+  const forms = document.querySelectorAll("form[action^='/products/add-to-cart']");
+  const toastEl = document.getElementById('category-toast');
+  const toast = new bootstrap.Toast(toastEl);
+  const cartItems = Array.from(document.querySelectorAll(".list-group-item")).map(li => {
+    const text = li.textContent.trim();
+    const category = Array.from(cards).find(card => {
+      return card.querySelector(".card-title")?.textContent?.trim() && text.includes(card.querySelector(".card-title").textContent.trim());
+    })?.getAttribute("data-category");
+    return category ? { category } : null;
+  }).filter(Boolean);
 
-    const cartItems = Array.from(document.querySelectorAll(".list-group-item")).map(li => {
-      const text = li.textContent.trim();
-      const category = Array.from(cards).find(card => {
-        return card.querySelector(".card-title")?.textContent?.trim() && text.includes(card.querySelector(".card-title").textContent.trim());
-      })?.getAttribute("data-category");
-      return category ? { category } : null;
-    }).filter(Boolean);
+  const defaultCategory = "{{ selected_category }}";
 
-    const defaultCategory = "{{ selected_category }}";
-
-    function filterByCategory(category) {
-      cards.forEach(card => {
-        const cardCategory = card.getAttribute("data-category");
-        card.style.display = (category === "all" || cardCategory === category) ? "block" : "none";
-      });
-
-      buttons.forEach(btn => btn.classList.remove("active"));
-      const activeBtn = document.querySelector(`.filter-btn[data-category="${category}"]`);
-      if (activeBtn) activeBtn.classList.add("active");
-    }
-
-    function hasCategoryAlreadyInCart(category) {
-      return cartItems.some(item => item.category === category);
-    }
-
-    forms.forEach(form => {
-      form.addEventListener("submit", function (e) {
-        const card = form.closest(".product-card");
-        const category = card.getAttribute("data-category");
-
-        if (hasCategoryAlreadyInCart(category)) {
-          e.preventDefault();
-          document.getElementById('toast-message').textContent = `You can only add one item from ${category}.`;
-          toast.show();
-        }
-      });
+  function filterByCategory(category) {
+    cards.forEach(card => {
+      const cardCategory = card.getAttribute("data-category");
+      card.style.display = (category === "all" || cardCategory === category) ? "block" : "none";
     });
 
-    buttons.forEach(button => {
-      button.addEventListener("click", () => {
-        const category = button.getAttribute("data-category");
-        filterByCategory(category);
-      });
-    });
+    buttons.forEach(btn => btn.classList.remove("active"));
+    const activeBtn = document.querySelector(`.filter-btn[data-category="${category}"]`);
+    if (activeBtn) activeBtn.classList.add("active");
+  }
 
-    // Handle category progression on Next Step
-    const nextStepForm = document.getElementById("next-step-form");
-    const nextCategoryInput = document.getElementById("next-category");
+  function hasCategoryAlreadyInCart(category) {
+    return cartItems.some(item => item.category === category);
+  }
 
-    nextStepForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const currentCategory = "{{ selected_category }}";
-      let nextCategory = "";
+  forms.forEach(form => {
+    form.addEventListener("submit", function (e) {
+      const card = form.closest(".product-card");
+      const category = card.getAttribute("data-category");
 
-      if (currentCategory === "T-shirts") {
-        nextCategory = "Notebooks";
-      } else if (currentCategory === "Notebooks") {
-        nextCategory = "Bottles";
-      } else if (currentCategory === "Bottles") {
-        window.location.href = "{% url 'products:magic_created' %}";
-        return;
+      if (hasCategoryAlreadyInCart(category)) {
+        e.preventDefault();
+        document.getElementById('toast-message').textContent = `You can only add one item from ${category}.`;
+        toast.show();
       }
-
-      nextCategoryInput.value = nextCategory;
-      nextStepForm.submit();
     });
-
-    filterByCategory(defaultCategory);
   });
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      const category = button.getAttribute("data-category");
+      filterByCategory(category);
+    });
+  });
+
+  const nextStepForm = document.getElementById("next-step-form");
+  const nextCategoryInput = document.getElementById("next-category");
+
+  nextStepForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const currentCategory = "{{ selected_category }}";
+    let nextCategory = "";
+
+    if (currentCategory === "T-shirts") {
+      nextCategory = "Notebooks";
+    } else if (currentCategory === "Notebooks") {
+      nextCategory = "Bottles";
+    } else if (currentCategory === "Bottles") {
+      window.location.href = "{% url 'products:magic_created' %}";
+      return;
+    }
+
+    nextCategoryInput.value = nextCategory;
+    nextStepForm.submit();
+  });
+
+  filterByCategory(defaultCategory);
+});
 </script>
 
 
