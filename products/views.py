@@ -15,12 +15,24 @@ from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
 
-
-@login_required
 def choose_box(request):
     if request.method == 'POST':
-        request.session['box_color'] = request.POST['box_color']
+        box_color = request.POST.get('box_color')
+        request.session['box_color'] = box_color
+
+        # Match box_color to product name (or customize as needed)
+        product = Product.objects.filter(name__icontains=box_color, type="Box").first()
+
+        if product:
+            # Check if already in cart (one box allowed)
+            if not CartItem.objects.filter(user=request.user, product__type="Box").exists():
+                CartItem.objects.create(
+                    user=request.user,
+                    product=product,
+                    quantity=1,
+                )
         return redirect('products:choose_items')
+
     return render(request, 'products/choose_box.html')
 
 
@@ -29,33 +41,30 @@ from django.utils.safestring import mark_safe
 import json
 
 def choose_items(request):
-    selected_category = request.GET.get('category', 'T-shirts')  # Default: T-shirts
-    categories = ['T-shirts', 'Notebooks', 'Bottles']
+    allowed_categories = ['T-shirts', 'Notebooks', 'Bottles']
+    selected_category = request.GET.get('category', 'T-shirts')
+
+    if selected_category not in allowed_categories:
+        selected_category = 'T-shirts'
+
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
     cart_total = sum(item.calc_subtotal() for item in cart_items)
 
-    # Prepare cart item categories for JS restriction
-    cart_items_json = json.dumps(
-        [
-            {
-                'id': item.id,
-                'name': item.product.name,
-                'category': item.product.type
-            }
-            for item in cart_items
-        ],
-        cls=DjangoJSONEncoder
-    )
+    cart_items_json = json.dumps([
+        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
+        for item in cart_items
+    ])
 
     return render(request, 'products/choose_items.html', {
         'products': products,
         'cart_items': cart_items,
         'cart_total': cart_total,
-        'categories': categories,
+        'categories': allowed_categories,
         'selected_category': selected_category,
-        'cart_items_json': mark_safe(cart_items_json),  # for JS to access safely
+        'cart_items_json': mark_safe(cart_items_json),
     })
+
 
 
 
@@ -70,25 +79,23 @@ def add_to_cart(request, product_id):
         if quantity < 1:
             quantity = 1
 
-        # Rule 1: Limit total cart items to 3
+        # Rule 1: Limit total items in cart
         cart_items_count = CartItem.objects.filter(user=request.user).count()
-        if cart_items_count >= 3:
-            messages.warning(
-                request,
-                "You can only add up to 3 items in total. Please remove an item to add another."
-            )
+        if cart_items_count >= 4:  # If including Box, change to 4
+            messages.warning(request, "You can only add up to 4 items in total.")
             return redirect('products:choose_items')
 
-        # Rule 2: Only one product per category
+        # Rule 2: Only one item per category
         if CartItem.objects.filter(user=request.user, product__type=category).exists():
-            messages.warning(
-                request,
-                f"You can only add one product from the '{category}' category. "
-                "Please remove the existing item to add another."
-            )
+            messages.warning(request, f"You can only add one product from '{category}'.")
             return redirect('products:choose_items')
 
-        # Save to cart
+        # Rule 3: For Box type, force quantity = 1 and size = None
+        if category == 'Box':
+            quantity = 1
+            size = None
+
+        # Add to cart
         CartItem.objects.create(
             user=request.user,
             product=product,
