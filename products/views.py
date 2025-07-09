@@ -15,6 +15,7 @@ from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
 
+@login_required(login_url='accounts:login')
 def choose_box(request):
     if request.method == 'POST':
         box_color = request.POST.get('box_color')
@@ -39,7 +40,7 @@ def choose_box(request):
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 import json
-
+@login_required(login_url='accounts:login')
 def choose_items(request):
     allowed_categories = ['T-shirts', 'Notebooks', 'Bottles']
     selected_category = request.GET.get('category', 'T-shirts')
