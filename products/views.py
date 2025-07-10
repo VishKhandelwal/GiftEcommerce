@@ -36,7 +36,7 @@ def choose_box(request):
         # Prevent duplicate box in cart
         if CartItem.objects.filter(user=request.user, product__type='Box').exists():
             messages.warning(request, "You can only add one Infinity Box.")
-            return redirect('products:choose_box')
+            return redirect('products:choose_items')
 
         # Add to cart
         CartItem.objects.create(
