@@ -35,26 +35,26 @@
 
     <!-- Box Options -->
     <div class="box-container">
-        <div class="box-option">
-            <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
-            <form method="POST" class="box-form" data-box-id="{{ black_box.id }}">
-                {% csrf_token %}
-                <input type="hidden" name="box_color" value="Black">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit">Black signature box</button>
-            </form>
-        </div>
-
-        <div class="box-option">
-            <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
-            <form method="POST" class="box-form" data-box-id="{{ white_box.id }}">
-                {% csrf_token %}
-                <input type="hidden" name="box_color" value="White">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit">White signature box</button>
-            </form>
-        </div>
+    <div class="box-option">
+    <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
+    <form method="POST" action="{% url 'products:choose_box' %}">
+        {% csrf_token %}
+        <input type="hidden" name="box_color" value="Black">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit">Black signature box</button>
+    </form>
     </div>
+
+    <div class="box-option">
+    <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
+    <form method="POST" action="{% url 'products:choose_box' %}">
+        {% csrf_token %}
+        <input type="hidden" name="box_color" value="White">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit">White signature box</button>
+    </form>
+    </div>
+
 </div>
 
 <script>
