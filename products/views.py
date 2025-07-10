@@ -17,24 +17,48 @@ from datetime import timedelta
 
 @login_required(login_url='accounts:login')
 def choose_box(request):
+    try:
+        black_box = Product.objects.get(name__icontains="Black", type="Box")
+        white_box = Product.objects.get(name__icontains="White", type="Box")
+    except Product.DoesNotExist:
+        messages.error(request, "Box products are missing from the database.")
+        return redirect('home')  # or wherever appropriate
+
+    cart_items = CartItem.objects.filter(user=request.user)
+    
     if request.method == 'POST':
         box_color = request.POST.get('box_color')
+        quantity = int(request.POST.get('quantity', 1))
+
+        selected_box = black_box if box_color == "Black" else white_box
+
+        # Restrict to one box per cart
+        if CartItem.objects.filter(user=request.user, product__type="Box").exists():
+            messages.warning(request, "You can only add one Infinity Box.")
+            return redirect('products:choose_box')
+
+        # Add to cart
+        CartItem.objects.create(
+            user=request.user,
+            product=selected_box,
+            quantity=quantity
+        )
         request.session['box_color'] = box_color
-
-        # Match box_color to product name (or customize as needed)
-        product = Product.objects.filter(name__icontains=box_color, type="Box").first()
-
-        if product:
-            # Check if already in cart (one box allowed)
-            if not CartItem.objects.filter(user=request.user, product__type="Box").exists():
-                CartItem.objects.create(
-                    user=request.user,
-                    product=product,
-                    quantity=1,
-                )
         return redirect('products:choose_items')
 
-    return render(request, 'products/choose_box.html')
+    cart_items_json = json.dumps([
+        {
+            'id': item.id,
+            'name': item.product.name,
+            'category': item.product.type
+        } for item in cart_items
+    ], cls=DjangoJSONEncoder)
+
+    return render(request, 'products/choose_box.html', {
+        'black_box': black_box,
+        'white_box': white_box,
+        'cart_items_json': mark_safe(cart_items_json)
+    })
 
 
 from django.core.serializers.json import DjangoJSONEncoder
