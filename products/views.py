@@ -17,25 +17,48 @@ from datetime import timedelta
 
 @login_required
 def choose_box(request):
+    # Get all box products
     boxes = Product.objects.filter(type='Box')
     black_box = boxes.filter(name__icontains='Black').first()
     white_box = boxes.filter(name__icontains='White').first()
 
     if request.method == 'POST':
-        box_color = request.POST.get('box_color')
-        product = black_box if box_color == 'Black' else white_box
+        box_color = request.POST.get('box_color', '').capitalize()
+        quantity = int(request.POST.get('quantity', 1))
 
-        if CartItem.objects.filter(user=request.user, product__type='Box').exists():
-            messages.warning(request, "Only one box allowed.")
+        # Pick correct product
+        product = None
+        if box_color == 'Black':
+            product = black_box
+        elif box_color == 'White':
+            product = white_box
+
+        # Prevent error if product is None
+        if not product:
+            messages.error(request, "Selected box not found.")
             return redirect('products:choose_box')
 
-        CartItem.objects.create(user=request.user, product=product, quantity=1)
-        print("Redirecting to choose_items... ✅")
+        # Prevent duplicate box
+        if CartItem.objects.filter(user=request.user, product__type='Box').exists():
+            messages.warning(request, "You can only add one Infinity Box.")
+            return redirect('products:choose_box')
+
+        # Add box to cart
+        CartItem.objects.create(
+            user=request.user,
+            product=product,
+            quantity=quantity
+        )
         return redirect('products:choose_items')
 
+    # On GET: send cart data to frontend
     cart_items = CartItem.objects.filter(user=request.user)
     cart_items_json = json.dumps([
-        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
+        {
+            'id': item.id,
+            'name': item.product.name,
+            'category': item.product.type
+        }
         for item in cart_items
     ], cls=DjangoJSONEncoder)
 
