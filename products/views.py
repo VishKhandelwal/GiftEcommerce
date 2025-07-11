@@ -17,37 +17,22 @@ from datetime import timedelta
 
 @login_required
 def choose_box(request):
-    # Get all boxes
     boxes = Product.objects.filter(type='Box')
     black_box = boxes.filter(name__icontains='Black').first()
     white_box = boxes.filter(name__icontains='White').first()
 
-    # Handle form submission
     if request.method == 'POST':
         box_color = request.POST.get('box_color')
-        quantity = int(request.POST.get('quantity', 1))
+        product = black_box if box_color == 'Black' else white_box
 
-        selected_box = black_box if box_color == 'Black' else white_box
-
-        if not selected_box:
-            messages.error(request, "Selected box not found.")
+        if CartItem.objects.filter(user=request.user, product__type='Box').exists():
+            messages.warning(request, "Only one box allowed.")
             return redirect('products:choose_box')
 
-        # Prevent duplicate box in cart
-        if CartItem.objects.filter(user=request.user, product__type='Box').exists():
-            messages.warning(request, "You can only add one Infinity Box.")
-            return redirect('products:choose_items')
-
-        # Add to cart
-        CartItem.objects.create(
-            user=request.user,
-            product=selected_box,
-            quantity=quantity
-        )
-
+        CartItem.objects.create(user=request.user, product=product, quantity=1)
+        print("Redirecting to choose_items... ✅")
         return redirect('products:choose_items')
 
-    # For GET: prepare cart JSON for JS
     cart_items = CartItem.objects.filter(user=request.user)
     cart_items_json = json.dumps([
         {'id': item.id, 'name': item.product.name, 'category': item.product.type}
@@ -57,7 +42,7 @@ def choose_box(request):
     return render(request, 'products/choose_box.html', {
         'black_box': black_box,
         'white_box': white_box,
-        'cart_items_json': mark_safe(cart_items_json),
+        'cart_items_json': mark_safe(cart_items_json)
     })
 
 
