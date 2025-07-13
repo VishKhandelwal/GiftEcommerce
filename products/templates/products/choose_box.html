@@ -35,28 +35,33 @@
 
     <!-- Box Options -->
     <div class="box-container">
-    <div class="box-option">
-    <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
-    <form method="POST" action="{% url 'products:choose_box' %}">
-        {% csrf_token %}
-        <input type="hidden" name="box_color" value="Black">
-        <input type="hidden" name="quantity" value="1">
-        <button type="submit">Black signature box</button>
-    </form>
-    </div>
 
-    <div class="box-option">
-    <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
-    <form method="POST" action="{% url 'products:choose_box' %}">
-        {% csrf_token %}
-        <input type="hidden" name="box_color" value="White">
-        <input type="hidden" name="quantity" value="1">
-        <button type="submit">White signature box</button>
-    </form>
-    </div>
+        <!-- Black Box -->
+        <div class="box-option">
+            <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
+            <form method="POST" action="{% url 'products:choose_box' %}" class="box-form">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ black_box.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit">Black signature box</button>
+            </form>
+        </div>
 
+        <!-- White Box -->
+        <div class="box-option">
+            <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
+            <form method="POST" action="{% url 'products:choose_box' %}" class="box-form">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ white_box.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit">White signature box</button>
+            </form>
+        </div>
+
+    </div>
 </div>
 
+<!-- JS to show toast if box already exists in cart -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const forms = document.querySelectorAll(".box-form");
@@ -79,7 +84,7 @@
   });
 </script>
 
-<!-- Step Style -->
+<!-- Styles -->
 <style>
     .progress-bar-steps {
         display: flex;
@@ -162,5 +167,3 @@
     }
 </style>
 {% endblock %}
-
-

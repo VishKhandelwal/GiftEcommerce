@@ -22,38 +22,22 @@ def choose_box(request):
     white_box = boxes.filter(name__icontains='White').first()
 
     if request.method == 'POST':
-        box_color = request.POST.get('box_color', '').strip().lower()
+        product_id = request.POST.get('product_id')
         quantity = int(request.POST.get('quantity', 1))
 
-        # Validate selected box
-        if box_color == 'black':
-            product = black_box
-        elif box_color == 'white':
-            product = white_box
-        else:
-            product = None
-
-        if not product:
-            messages.error(request, "Selected box is invalid.")
-            return redirect('products:choose_box')
+        product = get_object_or_404(Product, id=product_id, type='Box')
 
         if CartItem.objects.filter(user=request.user, product__type='Box').exists():
             messages.warning(request, "You can only add one Infinity Box.")
             return redirect('products:choose_box')
 
-        # Save box to cart
         CartItem.objects.create(user=request.user, product=product, quantity=quantity)
+        return redirect('products:choose_items')  # ✅ Final redirect
 
-        return redirect('products:choose_items')  # ✅ Redirect to next step
-
-    # For GET request
+    # On GET
     cart_items = CartItem.objects.filter(user=request.user)
     cart_items_json = json.dumps([
-        {
-            'id': item.id,
-            'name': item.product.name,
-            'category': item.product.type
-        }
+        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
         for item in cart_items
     ], cls=DjangoJSONEncoder)
 
