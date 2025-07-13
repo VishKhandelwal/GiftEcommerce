@@ -22,29 +22,46 @@ def choose_box(request):
     white_box = boxes.filter(name__icontains='White').first()
 
     if request.method == 'POST':
-        box_color = request.POST.get('box_color')
-        product = black_box if box_color == 'Black' else white_box
+        box_color = request.POST.get('box_color', '').strip().lower()
+        quantity = int(request.POST.get('quantity', 1))
+
+        # Validate selected box
+        if box_color == 'black':
+            product = black_box
+        elif box_color == 'white':
+            product = white_box
+        else:
+            product = None
+
+        if not product:
+            messages.error(request, "Selected box is invalid.")
+            return redirect('products:choose_box')
 
         if CartItem.objects.filter(user=request.user, product__type='Box').exists():
-            messages.warning(request, "Only one box allowed.")
-            return redirect('products:choose_items')
+            messages.warning(request, "You can only add one Infinity Box.")
+            return redirect('products:choose_box')
 
-        CartItem.objects.create(user=request.user, product=product, quantity=1)
-        print("Redirecting to choose_items... ✅")
-        return redirect('products:choose_items')
+        # Save box to cart
+        CartItem.objects.create(user=request.user, product=product, quantity=quantity)
 
+        return redirect('products:choose_items')  # ✅ Redirect to next step
+
+    # For GET request
     cart_items = CartItem.objects.filter(user=request.user)
     cart_items_json = json.dumps([
-        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
+        {
+            'id': item.id,
+            'name': item.product.name,
+            'category': item.product.type
+        }
         for item in cart_items
     ], cls=DjangoJSONEncoder)
 
     return render(request, 'products/choose_box.html', {
         'black_box': black_box,
         'white_box': white_box,
-        'cart_items_json': mark_safe(cart_items_json)
+        'cart_items_json': mark_safe(cart_items_json),
     })
-
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
