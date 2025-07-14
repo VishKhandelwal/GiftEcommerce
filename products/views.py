@@ -15,37 +15,24 @@ from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
 
-@login_required
+@login_required(login_url='accounts:login')
 def choose_box(request):
-    boxes = Product.objects.filter(type='Box')
-    black_box = boxes.filter(name__icontains='Black').first()
-    white_box = boxes.filter(name__icontains='White').first()
-
     if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        quantity = int(request.POST.get('quantity', 1))
+        box_color = request.POST.get('box_color')
+        request.session['box_color'] = box_color
 
-        product = get_object_or_404(Product, id=product_id, type='Box')
+        # ✅ Add selected box to cart
+        box_product = get_object_or_404(Product, name__icontains=box_color, type="Box")
+        CartItem.objects.update_or_create(
+            user=request.user,
+            product=box_product,
+            defaults={'quantity': 1}
+        )
 
-        if CartItem.objects.filter(user=request.user, product__type='Box').exists():
-            messages.warning(request, "You can only add one Infinity Box.")
-            return redirect('products:choose_box')
+        return redirect('products:choose_items')
 
-        CartItem.objects.create(user=request.user, product=product, quantity=quantity)
-        return redirect('products:choose_items')  # ✅ Final redirect
+    return render(request, 'products/choose_box.html')
 
-    # On GET
-    cart_items = CartItem.objects.filter(user=request.user)
-    cart_items_json = json.dumps([
-        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
-        for item in cart_items
-    ], cls=DjangoJSONEncoder)
-
-    return render(request, 'products/choose_box.html', {
-        'black_box': black_box,
-        'white_box': white_box,
-        'cart_items_json': mark_safe(cart_items_json),
-    })
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe

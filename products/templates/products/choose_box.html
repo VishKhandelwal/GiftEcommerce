@@ -1,18 +1,10 @@
+{# Step 1: choose_box.html #}
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
 <div class="container text-center my-5">
 
-    <!-- Toast for duplicate box -->
-    <div id="box-toast" class="toast align-items-center text-white bg-danger border-0 position-fixed top-0 end-0 m-4" role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 9999;">
-      <div class="d-flex">
-        <div class="toast-body" id="toast-message">
-          You can only add one Infinity Box.
-        </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-    </div>
 
     <!-- Progress Bar -->
     <div class="progress-bar-steps mb-5">
@@ -35,56 +27,27 @@
 
     <!-- Box Options -->
     <div class="box-container">
-
-        <!-- Black Box -->
         <div class="box-option">
             <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
-            <form method="POST" action="{% url 'products:choose_box' %}" class="box-form">
+            <form method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ black_box.id }}">
-                <input type="hidden" name="quantity" value="1">
+                <input type="hidden" name="box_color" value="Black">
                 <button type="submit">Black signature box</button>
             </form>
         </div>
 
-        <!-- White Box -->
         <div class="box-option">
             <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
-            <form method="POST" action="{% url 'products:choose_box' %}" class="box-form">
+            <form method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ white_box.id }}">
-                <input type="hidden" name="quantity" value="1">
+                <input type="hidden" name="box_color" value="White">
                 <button type="submit">White signature box</button>
             </form>
         </div>
-
     </div>
 </div>
 
-<!-- JS to show toast if box already exists in cart -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const forms = document.querySelectorAll(".box-form");
-    const toastEl = document.getElementById("box-toast");
-    const toast = new bootstrap.Toast(toastEl);
-    const cartItems = JSON.parse('{{ cart_items_json|escapejs }}');
-
-    function alreadyHasBox() {
-      return cartItems.some(item => item.category === "Box");
-    }
-
-    forms.forEach(form => {
-      form.addEventListener("submit", function (e) {
-        if (alreadyHasBox()) {
-          e.preventDefault();
-          toast.show();
-        }
-      });
-    });
-  });
-</script>
-
-<!-- Styles -->
+<!-- Step Style -->
 <style>
     .progress-bar-steps {
         display: flex;
