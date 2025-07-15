@@ -55,10 +55,27 @@ import json
 @login_required(login_url='accounts:login')
 def choose_items(request):
     allowed_categories = ['T-shirts', 'Notebooks', 'Bottles']
-    selected_category = request.GET.get('category', allowed_categories[0])
+    selected_category = request.GET.get('category', 'T-shirts')
+
+    if request.method == 'POST':
+        selected_category = request.POST.get('category', 'T-shirts')  # 🟢 Fix: Get category from POST
+        if selected_category not in allowed_categories:
+            selected_category = 'T-shirts'
+
+        product_id = request.POST.get('product_id')
+        product = get_object_or_404(Product, id=product_id, type=selected_category)
+
+        CartItem.objects.update_or_create(
+            user=request.user,
+            product=product,
+            defaults={'quantity': 1}
+        )
+
+        # ✅ Stay on same category after add
+        return redirect(f"{request.path}?category={selected_category}")
 
     if selected_category not in allowed_categories:
-        selected_category = allowed_categories[0]
+        selected_category = 'T-shirts'
 
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
@@ -69,23 +86,15 @@ def choose_items(request):
         for item in cart_items
     ])
 
-    next_category = None
-    try:
-        current_index = allowed_categories.index(selected_category)
-        if current_index + 1 < len(allowed_categories):
-            next_category = allowed_categories[current_index + 1]
-    except ValueError:
-        pass
-
     return render(request, 'products/choose_items.html', {
         'products': products,
         'cart_items': cart_items,
         'cart_total': cart_total,
         'categories': allowed_categories,
         'selected_category': selected_category,
-        'next_category': next_category,
         'cart_items_json': mark_safe(cart_items_json),
     })
+
 
 
 
