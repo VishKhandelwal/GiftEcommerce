@@ -17,16 +17,23 @@ from datetime import timedelta
 
 @login_required(login_url='accounts:login')
 def choose_box(request):
-    black_box = Product.objects.filter(name__icontains='Black', type='Box').first()
-    white_box = Product.objects.filter(name__icontains='White', type='Box').first()
+    black_box, _ = Product.objects.get_or_create(
+        name="Black Signature Box",
+        type="Box",
+    
+    )
+
+    white_box, _ = Product.objects.get_or_create(
+        name="White Signature Box",
+        type="Box",
+
+    )
 
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         product = get_object_or_404(Product, id=product_id, type='Box')
         box_color = request.POST.get('box_color')
-        # Find the product where name contains the color and it's a Box
-        box_product = get_object_or_404(Product, name__icontains=box_color, type='Box')
-
+    
         CartItem.objects.update_or_create(
             user=request.user,
             product=product,

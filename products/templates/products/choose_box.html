@@ -29,18 +29,20 @@
     <div class="box-container">
         <div class="box-option">
             <img src="/media/products/Black Box Infinity.jpg" alt="Black signature box">
-            <form method="POST" action="{% url 'products:choose_box' %}">
+            <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="box_color" value="Black">
+                <input type="hidden" name="product_id" value="{{ black_box.id }}">
                 <button type="submit">Black signature box</button>
-            </form>
+                </form>
         </div>
 
         <div class="box-option">
             <img src="/media/products/White Box Infinity.jpg" alt="White signature box">
-            <form method="POST" action="{% url 'products:choose_box' %}">
+            <form method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="box_color" value="White">
+                <input type="hidden" name="product_id" value="{{ white_box.id }}">
                 <button type="submit">White signature box</button>
             </form>
         </div>
