@@ -55,10 +55,10 @@ import json
 @login_required(login_url='accounts:login')
 def choose_items(request):
     allowed_categories = ['T-shirts', 'Notebooks', 'Bottles']
-    selected_category = request.GET.get('category', 'T-shirts')
+    selected_category = request.GET.get('category', allowed_categories[0])
 
     if selected_category not in allowed_categories:
-        selected_category = 'T-shirts'
+        selected_category = allowed_categories[0]
 
     products = Product.objects.filter(type=selected_category)
     cart_items = CartItem.objects.filter(user=request.user)
@@ -69,12 +69,21 @@ def choose_items(request):
         for item in cart_items
     ])
 
+    next_category = None
+    try:
+        current_index = allowed_categories.index(selected_category)
+        if current_index + 1 < len(allowed_categories):
+            next_category = allowed_categories[current_index + 1]
+    except ValueError:
+        pass
+
     return render(request, 'products/choose_items.html', {
         'products': products,
         'cart_items': cart_items,
         'cart_total': cart_total,
         'categories': allowed_categories,
         'selected_category': selected_category,
+        'next_category': next_category,
         'cart_items_json': mark_safe(cart_items_json),
     })
 
