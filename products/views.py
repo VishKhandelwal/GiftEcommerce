@@ -17,12 +17,22 @@ from datetime import timedelta
 
 @login_required(login_url='accounts:login')
 def choose_box(request):
-    if request.method == 'POST':
-        box_color = request.POST.get('box_color')
-        request.session['box_color'] = box_color
+    boxes = Product.objects.filter(type='Box')
+    black_box = boxes.filter(name__icontains='Black').first()
+    white_box = boxes.filter(name__icontains='White').first()
 
-        # ✅ Add selected box to cart
-        box_product = get_object_or_404(Product, name__icontains=box_color, type="Box")
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        if not product_id or not product_id.isdigit():
+            messages.error(request, "Invalid product selection.")
+            return redirect('products:choose_box')
+
+        box_product = get_object_or_404(Product, id=product_id, type='Box')
+
+        # Store selected color in session (optional)
+        request.session['box_color'] = box_product.name
+
+        # Add to cart (update if already added)
         CartItem.objects.update_or_create(
             user=request.user,
             product=box_product,
@@ -31,7 +41,19 @@ def choose_box(request):
 
         return redirect('products:choose_items')
 
-    return render(request, 'products/choose_box.html')
+    # GET request
+    cart_items = CartItem.objects.filter(user=request.user)
+    cart_items_json = json.dumps([
+        {'id': item.id, 'name': item.product.name, 'category': item.product.type}
+        for item in cart_items
+    ], cls=DjangoJSONEncoder)
+
+    return render(request, 'products/choose_box.html', {
+        'black_box': black_box,
+        'white_box': white_box,
+        'cart_items_json': mark_safe(cart_items_json)
+    })
+
 
 
 from django.core.serializers.json import DjangoJSONEncoder
