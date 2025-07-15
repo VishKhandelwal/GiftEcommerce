@@ -23,13 +23,16 @@ def choose_box(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         product = get_object_or_404(Product, id=product_id, type='Box')
+        box_color = request.POST.get('box_color')
+        # Find the product where name contains the color and it's a Box
+        box_product = get_object_or_404(Product, name__icontains=box_color, type='Box')
 
         CartItem.objects.update_or_create(
             user=request.user,
             product=product,
             defaults={'quantity': 1}
         )
-        request.session['box_color'] = product.name
+        request.session['box_color'] = box_color
         return redirect('products:choose_items')
 
     return render(request, 'products/choose_box.html', {
