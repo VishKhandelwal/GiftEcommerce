@@ -92,6 +92,39 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
+otp_store = {}
+
+def new_user_register(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        full_name = request.POST.get('full_name')
+        phone = request.POST.get('phone')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "User already exists. Please log in.")
+            return redirect('accounts:login')
+
+        otp = random.randint(100000, 999999)
+        otp_store[email] = {
+            'otp': str(otp),
+            'full_name': full_name,
+            'phone': phone
+        }
+
+        send_mail(
+            subject="Your OTP for Infinity Box",
+            message=f"Your OTP is {otp}",
+            from_email='hello@theinfinitybox.in',
+            recipient_list=[email]
+        )
+
+        request.session['email'] = email
+        return redirect('accounts:verify_otp')
+
+    return render(request, 'accounts/new_user.html')
+
+
+
 
 # Step 2: OTP Verification + Consent
 def verify_otp(request):
@@ -100,18 +133,31 @@ def verify_otp(request):
         session_otp = request.session.get("otp")
         email = request.session.get("email")
         agreed = request.POST.get("agree_terms")
+        resend = request.POST.get("resend_otp")
 
+        # If user clicked resend OTP
+        if resend:
+            from accounts.utils import send_otp_email  # ✅ Make sure you have a reusable send_otp_email function
+            new_otp = send_otp_email(email)
+            request.session['otp'] = new_otp
+            return render(request, "accounts/verify.html", {
+                "email": email,
+                "success": "OTP resent successfully. Please check your inbox."
+            })
+
+        # Must agree to data policy
         if not agreed:
             return render(request, "accounts/verify.html", {
                 "email": email,
                 "error": "Please agree to the data policy to proceed."
             })
 
+        # Check OTP
         if input_otp == session_otp and email:
             user, _ = User.objects.get_or_create(email=email)
             login(request, user)
 
-            # If code already redeemed
+            # Check if user already redeemed their code
             code = UniqueCode.objects.filter(assigned_to=email, is_used=True).first()
             if code:
                 request.session['already_redeemed'] = True
@@ -121,11 +167,11 @@ def verify_otp(request):
 
         return render(request, "accounts/verify.html", {
             "email": email,
-            "error": "Invalid OTP"
+            "error": "Invalid OTP. Please try again."
         })
 
-    return render(request, "accounts/verify.html")
-
+    email = request.session.get("email")
+    return render(request, "accounts/verify.html", {"email": email})
 
 # Step 3: Resend OTP
 def resend_otp(request):
