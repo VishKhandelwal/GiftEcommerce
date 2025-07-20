@@ -94,7 +94,7 @@ RAZORPAY_KEY_ID = 'your_key_id'
 RAZORPAY_KEY_SECRET = 'your_key_secret'
 
 ROOT_URLCONF = 'Gift_ecommerce.urls'
-LOGIN_URL = '/accounts/new_user/'
+LOGIN_URL = '/accounts/login/'
 
 TEMPLATES = [
     {

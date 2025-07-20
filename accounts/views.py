@@ -94,7 +94,7 @@ def login_view(request):
 
 otp_store = {}
 
-def new_user_register(request):
+def new_user(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         full_name = request.POST.get('full_name')
