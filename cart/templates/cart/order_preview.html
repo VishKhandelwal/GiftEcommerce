@@ -18,14 +18,19 @@
       <td><a href="{% url 'products:choose_box' %}" class="btn btn-sm btn-primary">Edit Box</a></td>
     </tr>
     <tr>
-      <td>Sipper</td>
-      <td>{{ selected_items.Sipper.product.name if selected_items.Sipper }}</td>
-      <td><a href="{% url 'products:choose_items' %}?category=Bottles" class="btn btn-sm btn-primary">Edit Sipper</a></td>
+      <td>Bottles</td>
+      <td>{{ selected_items.Sipper.product.name if selected_items.Bottles }}</td>
+      <td><a href="{% url 'products:choose_items' %}?category=Bottles" class="btn btn-sm btn-primary">Edit Bottles</a></td>
     </tr>
     <tr>
-      <td>Apparel</td>
-      <td>{{ selected_items.Apparel.product.name if selected_items.Apparel }}</td>
-      <td><a href="{% url 'products:choose_items' %}?category=T-shirts" class="btn btn-sm btn-primary">Edit Apparel</a></td>
+      <td>T-shirts</td>
+      <td>{{ selected_items.Apparel.product.name if selected_items.T-shirts }}</td>
+      <td><a href="{% url 'products:choose_items' %}?category=T-shirts" class="btn btn-sm btn-primary">Edit T-shirts</a></td>
+    </tr>
+    <tr>
+      <td>Notebooks</td>
+      <td>{{ selected_items.Sipper.product.name if selected_items.Notebooks }}</td>
+      <td><a href="{% url 'products:choose_items' %}?category=Notebooks" class="btn btn-sm btn-primary">Edit Notebooks</a></td>
     </tr>
     <tr>
       <td>Auto-included</td>
