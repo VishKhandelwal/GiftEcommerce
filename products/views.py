@@ -52,26 +52,42 @@ def choose_box(request):
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 import json
+from django.contrib import messages
+from django.shortcuts import redirect, render, get_object_or_404
+from django.utils.safestring import mark_safe
+from django.contrib.auth.decorators import login_required
+import json
+from .models import Product, CartItem  # Adjust import as per your app
+
 @login_required(login_url='accounts:login')
 def choose_items(request):
     allowed_categories = ['T-shirts', 'Notebooks', 'Bottles']
     selected_category = request.GET.get('category', allowed_categories[0])
 
     if request.method == 'POST':
-        selected_category = request.POST.get('category', allowed_categories[0])  # 🟢 Fix: Get category from POST
+        selected_category = request.POST.get('category', allowed_categories[0])
+
         if selected_category not in allowed_categories:
             selected_category = allowed_categories[0]
 
         product_id = request.POST.get('product_id')
-        product = get_object_or_404(Product, id=product_id, type=selected_category)
+        if not product_id:
+            messages.error(request, "Invalid product selection.")
+            return redirect(f"{request.path}?category={selected_category}")
 
+        # Check if already one item from this category exists in the cart
+        if CartItem.objects.filter(user=request.user, product__type=selected_category).exists():
+            messages.error(request, f"You can only add one item from {selected_category}.")
+            return redirect(f"{request.path}?category={selected_category}")
+
+        # Fetch the product and add it to cart
+        product = get_object_or_404(Product, id=product_id, type=selected_category)
         CartItem.objects.update_or_create(
             user=request.user,
             product=product,
             defaults={'quantity': 1}
         )
 
-        # ✅ Stay on same category after add
         return redirect(f"{request.path}?category={selected_category}")
 
     if selected_category not in allowed_categories:
