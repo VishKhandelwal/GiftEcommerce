@@ -59,10 +59,10 @@
             <img src="/media/products/Bottle1.jpeg" class="card-img-top" alt="Black sipper bottle">
             <div class="card-body text-center">
               <h5 class="card-title">Black sipper bottle</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 1 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="1">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -75,10 +75,10 @@
             <img src="/media/products/Bottle2.jpeg" class="card-img-top" alt="Green bottle">
             <div class="card-body text-center">
               <h5 class="card-title">Green bottle</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 2 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="2">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -91,10 +91,10 @@
             <img src="/media/products/Bottle3.jpeg" class="card-img-top" alt="Borosil bottle">
             <div class="card-body text-center">
               <h5 class="card-title">Borosil bottle</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 3 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="3">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -107,10 +107,10 @@
             <img src="/media/products/Bottle4.jpeg" class="card-img-top" alt="Bamboo lid and Jute cover bottle">
             <div class="card-body text-center">
               <h5 class="card-title">Bamboo lid and Jute cover bottle</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 4 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="4">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -123,10 +123,10 @@
             <img src="/media/products/Bottle5.jpeg" class="card-img-top" alt="Black premium sipper">
             <div class="card-body text-center">
               <h5 class="card-title">Black premium sipper</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 5 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="5">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -140,10 +140,10 @@
             <img src="/media/products/Notebook1.jpeg" class="card-img-top" alt="Minimalist Notebook">
             <div class="card-body text-center">
               <h5 class="card-title">Minimalist Notebook</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 6 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="6">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -156,10 +156,10 @@
             <img src="/media/products/Notebook2.jpeg" class="card-img-top" alt="Urban Linen Notebook">
             <div class="card-body text-center">
               <h5 class="card-title">Urban Linen Notebook</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 12 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="12">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>
@@ -172,10 +172,10 @@
             <img src="/media/products/Notebook3.jpeg" class="card-img-top" alt="Bamboo Classic Notebook">
             <div class="card-body text-center">
               <h5 class="card-title">Bamboo Classic Notebook</h5>
-              <form method="post" action="{% url 'products:add_to_cart' 13 %}">
+              <form method="post" action="{% url 'products:choose_items' %}">
                 {% csrf_token %}
                 <input type="hidden" name="quantity" value="1">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="product_id" value="13">
                 <input type="hidden" name="category" value="{{ selected_category }}">
                 <button type="submit" class="btn btn-dark">Add to Cart</button>
               </form>

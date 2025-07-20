@@ -194,7 +194,6 @@ def cart_summary_ajax(request):
     cart_total = sum(item.quantity * item.product.price for item in cart_items)
     html = render_to_string('products/cart_summary.html', {
         'cart_items': cart_items,
-        'cart_total': cart_total
     })
     return JsonResponse({'html': html})
 
@@ -220,8 +219,9 @@ def order_preview(request):
     # Categorize selections
     selected_items = {
         "Box": cart_items.filter(product__type__icontains='box').first(),
-        "Sipper": cart_items.filter(product__type__icontains='bottle').first(),
-        "Apparel": cart_items.filter(product__type__icontains='t-shirt').first(),
+        "Bottles": cart_items.filter(product__type__icontains='bottles').first(),
+        "T-shirts": cart_items.filter(product__type__icontains='t-shirt').first(),
+        "Notebooks": cart_items.filter(product__type__icontains='notebooks').first(),
         "AutoIncluded": ["Stickers", "Welcome Note"]  # You can replace or customize this
     }
 
@@ -258,7 +258,6 @@ def checkout_view(request):
 
     return render(request, 'cart/checkout.html', {
         'cart_items': cart_items,
-        'total': total,
         'form': form,
     })
 
@@ -271,13 +270,11 @@ def checkout_success(request):
     if not items.exists():
         return redirect('products:view_cart')
 
-    total = sum(item.calc_subtotal() for item in items)
     
 
     # ✅ Create the order
     order = Order.objects.create(
         user=user,
-        total_price=total,
      # Make sure the Order model has this field
     )
 
@@ -297,7 +294,6 @@ def checkout_success(request):
             order=order,
             product=item.product,
             quantity=item.quantity,
-            price=item.product.price,
             user=user,
             status='in_transit'
         )
