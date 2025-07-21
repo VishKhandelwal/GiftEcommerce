@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
-from products.models import Product
+from cart.models import CartItem
 from django.utils import timezone
+from products.models import Product
+
 
 class CartItem(models.Model):
     user = models.ForeignKey(
