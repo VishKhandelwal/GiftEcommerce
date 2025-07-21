@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from cart.models import CartItem
 from django.utils import timezone
 from products.models import Product
 
