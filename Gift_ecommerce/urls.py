@@ -24,7 +24,7 @@ from admin_dashboard import views as admin_views
 
 
 def home(request):
-    return redirect('/accounts/new_user/')
+    return redirect('/products/custombox/choose_box/')
 
 
 urlpatterns = [
