@@ -33,7 +33,7 @@ def login_view(request):
         # 🔒 Check if user has already redeemed an order
         if Order.objects.filter(user=user).exists():
             messages.info(request, "You’ve already redeemed your joining kit. Below is your order summary.")
-            return redirect('orders:order_summary_view')  # ✅ Replace with actual view name
+            return redirect('orders:summary')  # ✅ Replace with actual view name
 
         # 🚀 Generate and assign OTP
         otp = generate_otp()
