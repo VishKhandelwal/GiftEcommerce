@@ -14,10 +14,12 @@ from django.db.models import Count
 from django.contrib.admin.views.main import ChangeList
 from django.contrib import admin
 from .models import Order
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 
 
 
-
+@login_required(login_url='accounts:login')
 def order_summary_view(request):
     latest_order = Order.objects.filter(user=request.user).last()
     return render(request, 'orders/summary.html', {
