@@ -328,7 +328,7 @@
 
         if (hasCategoryAlreadyInCart(category)) {
           e.preventDefault();
-          document.getElementById('toast-message').textContent = `You can only add one item from ${data-category}.`;
+          document.getElementById('toast-message').textContent = `You can only add one item from ${category}.`;
           toast.show();
         }
       });
