@@ -92,7 +92,7 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
-otp_store = {}
+User = get_user_model()
 
 def new_user(request):
     if request.method == 'POST':
@@ -104,24 +104,31 @@ def new_user(request):
             messages.error(request, "User already exists. Please log in.")
             return redirect('accounts:login')
 
-        otp = random.randint(100000, 999999)
-        otp_store[email] = {
-            'otp': str(otp),
-            'full_name': full_name,
-            'phone': phone
-        }
+        # ✅ Create new user
+        user = User.objects.create(email=email)
+        user.save()
 
+        # ✅ Send welcome email with login link
         send_mail(
-            subject="Your OTP for Infinity Box",
-            message=f"Your OTP is {otp}",
+            subject="Welcome to Infinity!",
+            message=(
+                f"Hey There {full_name},\n\n"
+                "We’re excited to welcome you to the Infinity family! 🎉\n\n"
+                "You can log in anytime using the following link:\n"
+                "https://infinityforbusiness.com/accounts/login/\n\n"
+                "Thank you again for joining us!\n\n"
+                "Warm regards,\nTeam Infinity"
+            ),
             from_email='hello@theinfinitybox.in',
-            recipient_list=[email]
+            recipient_list=[email],
+            fail_silently=False,
         )
 
-        request.session['email'] = email
-        return redirect('accounts:verify_otp')
+        messages.success(request, "Registration successful. A welcome email has been sent.")
+        return redirect('accounts:login')  # or to 'products:choose_box' if needed
 
     return render(request, 'accounts/new_user.html')
+
 
 
 

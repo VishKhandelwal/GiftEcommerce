@@ -1,7 +1,5 @@
 Hey There!
 
-We’re excited to welcome you to the Infinity family! 🎉
-
 Your joining kit is ready to be redeemed
 
 Your OTP: {{ otp }}
