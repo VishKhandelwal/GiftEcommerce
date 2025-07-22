@@ -82,7 +82,7 @@ def login_view(request):
             html_message=html_message,
         )
 
-        return redirect('accounts:verify')  # ✅ Optional: use render if no redirect flow
+        return render(request, 'accounts/verify.html', {'email': email})
 
     return render(request, 'accounts/login.html')
 
