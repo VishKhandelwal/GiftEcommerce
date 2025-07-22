@@ -97,8 +97,6 @@ User = get_user_model()
 def new_user(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        full_name = request.POST.get('full_name')
-        phone = request.POST.get('phone')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, "User already exists. Please log in.")
@@ -112,7 +110,7 @@ def new_user(request):
         send_mail(
             subject="Welcome to Infinity!",
             message=(
-                f"Hey There {full_name},\n\n"
+                f"Hey There,\n\n"
                 "We’re excited to welcome you to the Infinity family! 🎉\n\n"
                 "You can log in anytime using the following link:\n"
                 "https://infinityforbusiness.com/accounts/login/\n\n"
@@ -130,7 +128,8 @@ def new_user(request):
     return render(request, 'accounts/new_user.html')
 
 
-
+def login_register(request):
+    return render(request, 'accounts/login_register.html')
 
 
 # Step 2: OTP Verification + Consent

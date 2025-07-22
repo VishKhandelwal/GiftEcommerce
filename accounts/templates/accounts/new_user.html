@@ -16,18 +16,6 @@
           <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
         </div>
 
-        <!-- Full Name -->
-        <div class="form-group mb-3">
-          <label for="full_name">Full Name</label>
-          <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Enter your full name">
-        </div>
-
-        <!-- Phone Number -->
-        <div class="form-group mb-3">
-          <label for="phone">Phone Number</label>
-          <input type="text" class="form-control" id="phone" name="phone" required placeholder="Enter phone number" pattern="\d*" maxlength="10">
-        </div>
-
         <button type="submit" class="btn btn-primary w-100">Register</button>
       </form>
 
@@ -39,9 +27,5 @@
 </div>
 
 <!-- ✅ Restrict phone input to numbers -->
-<script>
-  document.getElementById('phone').addEventListener('input', function () {
-    this.value = this.value.replace(/\D/g, '');
-  });
-</script>
+
 {% endblock %}
