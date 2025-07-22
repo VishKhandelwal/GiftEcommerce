@@ -17,31 +17,34 @@ from orders.models import Order
 def generate_otp():
     return str(random.randint(100000, 999999))
 
+User = get_user_model()
 
-# Step 1: Login → Send OTP & Code
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         if not email:
             return render(request, 'accounts/login.html', {'error': 'Email is required'})
 
-        otp = generate_otp()
-
         user, _ = User.objects.get_or_create(email=email)
-        user.otp = otp
-        user.save()
-
-        request.session['otp'] = otp
-        request.session['email'] = email
 
         # Check if user already redeemed
         redeemed = Order.objects.filter(user=user).exists()
         request.session['already_redeemed'] = redeemed
+        request.session['email'] = email
 
-        # Fetch or assign unique code
+        if redeemed:
+            messages.info(request, "You’ve already redeemed your joining kit. Below is your order summary.")
+            return redirect('orders:summary')  # ✅ Redirect to order summary (update name accordingly)
+
+        # Proceed with OTP flow
+        otp = generate_otp()
+        user.otp = otp
+        user.save()
+
+        # Assign unique code if needed
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
-        # Check if existing code is expired
         if code_obj and code_obj.assigned_time:
             expiry_time = code_obj.assigned_time + timedelta(days=14)
             if timezone.now() > expiry_time:
@@ -49,15 +52,6 @@ def login_view(request):
                 code_obj.save()
                 return render(request, "accounts/link_expired.html", {"email": email})
 
-        # Try reusing old unused code
-        if not code_obj:
-            code_obj = UniqueCode.objects.filter(
-                assigned_to=email,
-                is_used=False,
-                assigned_time__lt=timezone.now() - timedelta(days=14)
-            ).first()
-
-        # Try assigning a new unassigned code
         if not code_obj:
             code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
             if code_obj:
@@ -65,14 +59,13 @@ def login_view(request):
                 code_obj.assigned_time = timezone.now()
                 code_obj.save()
 
-        # Still no code
         if not code_obj:
             return render(request, 'accounts/link_expired.html', {
                 'email': email,
                 'error': 'No unique codes available at the moment.'
             })
 
-        # Send email with OTP + code
+        # Email with OTP + code
         context = {
             'otp': otp,
             'unique_code': code_obj.code,
@@ -92,7 +85,6 @@ def login_view(request):
 
     return render(request, 'accounts/login.html')
 
-User = get_user_model()
 
 def new_user(request):
     if request.method == 'POST':
@@ -102,17 +94,17 @@ def new_user(request):
             messages.error(request, "User already exists. Please log in.")
             return redirect('accounts:login')
 
-        # ✅ Create new user
+        # ✅ Create user
         user = User.objects.create(email=email)
         user.save()
 
-        # ✅ Send welcome email with login link
+        # ✅ Send welcome email
         send_mail(
             subject="Welcome to Infinity!",
             message=(
                 f"Hey There,\n\n"
                 "We’re excited to welcome you to the Infinity family! 🎉\n\n"
-                "You can log in anytime using the following link:\n"
+                "You can log in anytime using this link:\n"
                 "https://infinityforbusiness.com/accounts/login/\n\n"
                 "Thank you again for joining us!\n\n"
                 "Warm regards,\nTeam Infinity"
@@ -122,10 +114,11 @@ def new_user(request):
             fail_silently=False,
         )
 
-        messages.success(request, "Registration successful. A welcome email has been sent.")
-        return redirect('accounts:login')  # or to 'products:choose_box' if needed
+        messages.success(request, "Registration successful. Please check your inbox for next steps.")
+        return redirect('accounts:login')  # ✅ New user lands on login, not OTP
 
     return render(request, 'accounts/new_user.html')
+
 
 
 def login_register(request):
