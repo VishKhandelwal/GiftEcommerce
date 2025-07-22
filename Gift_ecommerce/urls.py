@@ -24,12 +24,12 @@ from admin_dashboard import views as admin_views
 
 
 def home(request):
-    return redirect('/products/custombox/choose_box/')
+    return redirect('/accounts/new_user/')
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home),  
+    path('', home), 
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
     path('products/', include(('products.urls', 'products'), namespace='products')),
     path('cart/', include('cart.urls', namespace='cart')),
