@@ -82,7 +82,23 @@ def admin_dashboard(request):
     return render(request, 'admin_dashboard/dashboard.html', context)
 
 def manual_order_entry(request):
-    # You can render a form or placeholder page
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        status = request.POST.get('status')
+        notes = request.POST.get('notes', '')
+
+        user, created = User.objects.get_or_create(email=email)
+
+        Order.objects.create(
+            user=user,
+            status=status,
+            order_date=timezone.now(),
+            notes=notes
+        )
+
+        messages.success(request, f"Order for {email} created successfully.")
+        return redirect('admin_dashboard:manual_order_entry')
+
     return render(request, 'admin_dashboard/manual_order_entry.html')
 
 # ✅ Admin Logout View

@@ -1,8 +1,37 @@
-{% extends "base.html" %}
-
 {% block content %}
 <div class="container mt-5">
-  <h2>Manual Order Entry</h2>
-  <p>This is a placeholder for manual order entry. You can add a form here later.</p>
+  <h2 class="mb-4">Manual Order Entry</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Customer Email</label>
+      <input type="email" name="email" class="form-control" id="email" required placeholder="customer@example.com">
+    </div>
+
+    <div class="mb-3">
+      <label for="status" class="form-label">Order Status</label>
+      <select name="status" id="status" class="form-select" required>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="in_transit">In Transit</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="notes" class="form-label">Notes (optional)</label>
+      <textarea name="notes" id="notes" rows="3" class="form-control" placeholder="Any special instructions..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Order</button>
+  </form>
 </div>
 {% endblock %}
