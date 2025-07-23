@@ -81,6 +81,10 @@ def admin_dashboard(request):
 
     return render(request, 'admin_dashboard/dashboard.html', context)
 
+def manual_order_entry(request):
+    # You can render a form or placeholder page
+    return render(request, 'admin_dashboard/manual_order_entry.html')
+
 # ✅ Admin Logout View
 def admin_logout(request):
     logout(request)
