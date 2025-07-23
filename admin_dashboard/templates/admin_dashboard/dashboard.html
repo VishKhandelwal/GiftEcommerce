@@ -34,7 +34,7 @@
       <label class="form-label">Year</label>
       <select name="year" class="form-select">
         <option value="">All</option>
-        {% for y in 2023|make_list:3 %}
+         {% for y in years %}
           <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
