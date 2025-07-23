@@ -24,7 +24,7 @@
       <label class="form-label">Month</label>
       <select name="month" class="form-select">
         <option value="">All</option>
-        {% for m in "01 02 03 04 05 06 07 08 09 10 11 12".split %}
+        {% for m in months %}
           <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ m }}</option>
         {% endfor %}
       </select>
@@ -107,7 +107,6 @@
         <tr>
           <th>ID</th>
           <th>User</th>
-          <th>Total Price</th>
           <th>Status</th>
           <th>Order Date</th>
         </tr>
@@ -117,7 +116,6 @@
           <tr>
             <td>{{ order.id }}</td>
             <td>{{ order.user.email }}</td>
-            <td>₹{{ order.total_price }}</td>
             <td>{{ order.status|title }}</td>
             <td>{{ order.order_date|date:"Y-m-d H:i" }}</td>
           </tr>
