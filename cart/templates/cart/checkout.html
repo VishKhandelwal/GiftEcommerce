@@ -23,7 +23,11 @@
       {% endfor %}
     </tbody>
   </table>
-
+  <div class="text-end mt-3 mb-4">
+    <a href="{% url 'products:choose_box' %}" class="btn btn-outline-secondary">
+      ✏️ Edit Hamper
+    </a>
+  </div>
 
   <hr>
 
@@ -42,12 +46,12 @@
     </div>
 
     <div class="mb-3">
-      <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+      <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number*</label>
       {{ form.phone_number|add_class:"form-control" }}
     </div>
 
     <div class="mb-3">
-      <label for="{{ form.pincode.id_for_label }}" class="form-label">Pincode</label>
+      <label for="{{ form.pincode.id_for_label }}" class="form-label">Pincode*</label>
       {{ form.pincode|add_class:"form-control" }}
     </div>
 

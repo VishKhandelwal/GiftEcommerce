@@ -24,7 +24,7 @@
           <div>
             {{ item.product.name }} (x{{ item.quantity }})
           </div>
-          <form action="{% url 'products:remove_from_cart' item.id %}" method="post" style="margin: 0;">
+          <form action="{% url 'products:remove_from_cart' item.id % }?category={{ selected_category }}" method="post" style="margin: 0;">
             {% csrf_token %}
             <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
           </form>

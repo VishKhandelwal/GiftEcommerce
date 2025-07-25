@@ -91,11 +91,23 @@ def new_user(request):
     if request.method == 'POST':
         email = request.POST.get('email')
 
-        if User.objects.filter(email=email).exists():
+        if not email:
+            messages.error(request, "Email is required.")
+            return redirect('accounts:new_user')
+
+        user = User.objects.filter(email=email).first()
+
+        # ✅ Already registered
+        if user:
+            # 🔁 Already placed order? Redirect to summary
+            if Order.objects.filter(user=user).exists():
+                messages.info(request, "You’ve already redeemed your joining kit. Below is your order summary.")
+                return redirect('orders:summary')
+
             messages.error(request, "This email is already in use. Please login.")
             return redirect('accounts:login')
 
-        # ✅ Create user
+        # ✅ Create user and assign OTP
         user = User.objects.create(email=email)
         otp = generate_otp()
         user.otp = otp
@@ -104,7 +116,7 @@ def new_user(request):
         request.session['email'] = email
         request.session['otp'] = otp
 
-        # ✅ Assign unique code
+        # ✅ Assign or reuse unique code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
         if not code_obj:
@@ -119,12 +131,11 @@ def new_user(request):
                     'error': 'No redemption codes available at the moment.'
                 })
 
-        # ✅ Send welcome + OTP + unique code
+        # ✅ Send welcome + OTP + code mail
         context = {
             'otp': otp,
             'unique_code': code_obj.code,
         }
-
         html_message = render_to_string('emails/welcome.html', context)
         plain_message = render_to_string('emails/welcome.txt', context)
 
@@ -139,7 +150,6 @@ def new_user(request):
         return render(request, 'accounts/verify.html', {'email': email})
 
     return render(request, 'accounts/new_user.html')
-
 
 
 # Step 2: OTP Verification + Consent
