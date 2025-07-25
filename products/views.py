@@ -9,11 +9,12 @@ from collections import defaultdict
 import uuid
 from django.conf import settings
 from .models import Product
-
+from django.http import HttpResponseBadRequest
 from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
+from django.urls import reverse
 
 @login_required(login_url='accounts:login')
 def choose_box(request):
@@ -160,10 +161,15 @@ def add_to_cart(request, product_id):
 
 
 def remove_from_cart(request, item_id):
-    category = request.GET.get("category", "T-shirts")  # Default fallback
-    item = get_object_or_404(CartItem, id=item_id, user=request.user)
-    item.delete()
-    return redirect(f"{request.META.get('HTTP_REFERER', '/products/custombox/choose_items')}?category={category}")
+    if request.method == "POST":
+        item = get_object_or_404(CartItem, id=item_id, user=request.user)
+        item.delete()
+
+        # Maintain category tab after removal
+        category = request.GET.get("category", "T-shirts")
+        return redirect(f"{reverse('products:choose_items')}?category={category}")
+
+    return HttpResponseBadRequest("Invalid method")
 
 
 @login_required
