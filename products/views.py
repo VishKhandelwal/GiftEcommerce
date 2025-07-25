@@ -160,19 +160,15 @@ def add_to_cart(request, product_id):
 
 
 
-def remove_from_cart(request, item_id):
+def remove_from_cart(request, cart_item_id):
     if request.method != "POST":
         return HttpResponseBadRequest("Invalid request")
 
-    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
-
+    cart_item = get_object_or_404(CartItem, id=cart_item_id)
     cart_item.delete()
 
-    # Redirect to the correct category page after remove
     referer = request.META.get('HTTP_REFERER')
-    if referer:
-        return redirect(referer)
-    return redirect('products:choose_items')  # fallback
+    return redirect(referer or 'products:choose_items')
 
 
 @login_required
