@@ -9,12 +9,11 @@ from collections import defaultdict
 import uuid
 from django.conf import settings
 from .models import Product
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest
 from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
-from django.urls import reverse
 
 @login_required(login_url='accounts:login')
 def choose_box(request):
@@ -53,12 +52,12 @@ def choose_box(request):
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 import json
-from cart.models import CartItem
 from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
-import json  # Adjust import as per your app
+import json
+from .models import Product, CartItem  # Adjust import as per your app
 
 @login_required(login_url='accounts:login')
 def choose_items(request):
