@@ -9,7 +9,7 @@ from collections import defaultdict
 import uuid
 from django.conf import settings
 from .models import Product
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
 from django.utils import timezone
@@ -161,15 +161,18 @@ def add_to_cart(request, product_id):
 
 
 def remove_from_cart(request, item_id):
-    if request.method == "POST":
-        item = get_object_or_404(CartItem, id=item_id, user=request.user)
-        item.delete()
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid request")
 
-        # Maintain category tab after removal
-        category = request.GET.get("category", "T-shirts")
-        return redirect(f"{reverse('products:choose_items')}?category={category}")
+    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
 
-    return HttpResponseBadRequest("Invalid method")
+    cart_item.delete()
+
+    # Redirect to the correct category page after remove
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('products:choose_items')  # fallback
 
 
 @login_required
