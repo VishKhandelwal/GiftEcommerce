@@ -58,7 +58,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 import json
-from .models import Product, CartItem  # Adjust import as per your app
+from .models import Product # Adjust import as per your app
 
 @login_required(login_url='accounts:login')
 def choose_items(request):
