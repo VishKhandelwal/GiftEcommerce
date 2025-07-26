@@ -88,8 +88,8 @@ def login_view(request):
 
 
 def new_user(request):
-    list(messages.get_messages(request)) 
-    
+
+
     if request.method == 'POST':
         email = request.POST.get('email')
 
