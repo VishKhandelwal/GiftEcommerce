@@ -14,6 +14,7 @@ from .forms import DeliveryAddressForm
 from orders.models import Order, OrderItem
 from django.utils import timezone
 from datetime import timedelta
+from cart.models import CartItem
 
 @login_required(login_url='accounts:login')
 def choose_box(request):

@@ -5,7 +5,6 @@ from django.contrib import messages
 
 # View cart
 from collections import defaultdict
-from cart.models import CartItem
 
 def cart_view(request):
     cart_items = CartItem.objects.filter(user=request.user)
