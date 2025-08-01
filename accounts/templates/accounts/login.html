@@ -30,14 +30,41 @@
       border: none;
       border-radius: 6px;
     }
+    .alert {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
   </style>
 </head>
 <body>
   <div class="login-box">
     <h2>Login</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
     <form method="post">
       {% csrf_token %}
       <input type="email" name="email" placeholder="Enter your email" required>
+      {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+      {% endif %}
       <button type="submit">Login</button>
     </form>
   </div>

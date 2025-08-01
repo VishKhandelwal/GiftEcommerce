@@ -9,7 +9,7 @@ from django.urls import reverse
 from datetime import timedelta
 import random
 from django.contrib.auth import get_user_model
-from .otp_utils import generate_otp
+from .otp_utils import generate_otp, send_otp
 from orders.models import Order
 from .models import UniqueCode
 from accounts.models import CustomUser as User, UniqueCode
@@ -25,20 +25,21 @@ User = get_user_model()
 from django.utils.http import urlencode
 
 def login_view(request):
-    next_url = request.GET.get('next') or request.POST.get('next', '')
+    next_url = request.GET.get('next', '')
 
     if request.method == 'POST':
         email = request.POST.get('email')
+        next_url = request.POST.get('next')  # ✅ Pick from POST too
 
         if not email:
-            return render(request, 'accounts/login.html', {'error': 'Email is required', 'next': next_url})
+            return render(request, 'accounts/login.html', {'error': 'Email is required'})
 
         user, _ = User.objects.get_or_create(email=email)
         request.session['email'] = email
+        request.session['next'] = next_url  # ✅ Save for next step
 
-        # ✅ Redirect directly if already ordered
+        # ✅ Check if user has existing order
         if Order.objects.filter(user=user).exists():
-            messages.info(request, "You’ve already redeemed your joining kit. Here’s your order summary.")
             return redirect('orders:summary')
 
         # 🚀 Generate OTP
@@ -47,16 +48,8 @@ def login_view(request):
         user.save()
         request.session['otp'] = otp
 
-        # 🔑 Assign unique code
+        # ✅ Assign or reuse code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
-
-        if code_obj and code_obj.assigned_time:
-            expiry_time = code_obj.assigned_time + timedelta(days=14)
-            if timezone.now() > expiry_time:
-                code_obj.is_used = True
-                code_obj.save()
-                return render(request, "accounts/link_expired.html", {"email": email})
-
         if not code_obj:
             code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
             if code_obj:
@@ -65,36 +58,21 @@ def login_view(request):
                 code_obj.save()
 
         if not code_obj:
-            return render(request, 'accounts/link_expired.html', {
-                'email': email,
-                'error': 'No unique codes available at the moment.'
-            })
+            return render(request, 'accounts/link_expired.html', {'email': email})
 
-        # 📧 Send OTP + code
-        context = {
-            'otp': otp,
-            'unique_code': code_obj.code,
-        }
-
-        html_message = render_to_string('emails/welcome.html', context)
-        plain_message = render_to_string('emails/welcome.txt', context)
-
+        # 📧 Send OTP
+        context = {'otp': otp, 'unique_code': code_obj.code}
         send_mail(
             subject="🎁 Redeem Your Gift Hamper - Team Infinity",
-            message=plain_message,
+            message=render_to_string('emails/welcome.txt', context),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
-            html_message=html_message,
+            html_message=render_to_string('emails/welcome.html', context),
         )
 
-        # 🔁 Redirect to verify view with next param if present
-        query_string = f"?next={next_url}" if next_url else ""
-        return redirect(f"{reverse('accounts:verify')}{query_string}")
+        return redirect('accounts:verify')
 
     return render(request, 'accounts/login.html', {'next': next_url})
-
-
-
 
 def new_user(request):
 
@@ -165,57 +143,50 @@ def new_user(request):
 
 # Step 2: OTP Verification + Consent
 def verify_otp(request):
-    next_url = request.GET.get("next") or request.POST.get("next", "")
-    email = request.session.get("email")
-
     if request.method == "POST":
         input_otp = request.POST.get("otp")
         session_otp = request.session.get("otp")
+        email = request.session.get("email")
         agreed = request.POST.get("agree_terms")
-        resend = request.POST.get("resend_otp")
+        next_url = request.session.get("next") or request.POST.get("next")
 
-        # 🔁 Resend OTP
-        if resend:
-            from accounts.utils import send_otp_email
-            new_otp = send_otp_email(email)
+        if request.POST.get("resend_otp"):
+            new_otp = send_otp(email)
             request.session['otp'] = new_otp
             return render(request, "accounts/verify.html", {
                 "email": email,
-                "success": "OTP resent successfully. Please check your inbox.",
+                "success": "OTP resent successfully.",
                 "next": next_url,
             })
 
-        # ❗ Must agree to data policy
         if not agreed:
             return render(request, "accounts/verify.html", {
                 "email": email,
-                "error": "Please agree to the data policy to proceed.",
+                "error": "Please agree to the data policy.",
                 "next": next_url,
             })
 
-        # ✅ Validate OTP
         if input_otp == session_otp and email:
             user, _ = User.objects.get_or_create(email=email)
             login(request, user)
 
-            # ✅ Redirect based on next param or redeemed status
-            if UniqueCode.objects.filter(assigned_to=email, is_used=True).exists():
-                request.session['already_redeemed'] = True
-                return redirect(next_url or 'orders:summary')
+            # ✅ Redirect to next URL or choose box
+            if Order.objects.filter(user=user).exists():
+                return redirect('orders:summary')
 
             return redirect(next_url or "products:choose_box")
 
-        # ❌ Invalid OTP
         return render(request, "accounts/verify.html", {
             "email": email,
-            "error": "Invalid OTP. Please try again.",
+            "error": "Invalid OTP",
             "next": next_url,
         })
 
     return render(request, "accounts/verify.html", {
-        "email": email,
-        "next": next_url,
+        "email": request.session.get("email"),
+        "next": request.session.get("next", ''),
     })
+
 
 # Step 3: Resend OTP
 def resend_otp(request):
