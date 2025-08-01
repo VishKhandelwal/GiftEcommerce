@@ -20,6 +20,21 @@ def generate_otp():
 User = get_user_model()
 
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils import timezone
+from datetime import timedelta
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+from .utils import generate_otp
+from orders.models import Order
+from .models import UniqueCode
+
+User = get_user_model()
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -30,10 +45,10 @@ def login_view(request):
         user, _ = User.objects.get_or_create(email=email)
         request.session['email'] = email
 
-        # 🔒 Check if user has already redeemed an order
+        # ✅ If user already has an order, redirect to summary
         if Order.objects.filter(user=user).exists():
-            messages.info(request, "You’ve already redeemed your joining kit. Below is your order summary.")
-            return redirect('orders:summary')  # ✅ Replace with actual view name
+            messages.info(request, "You’ve already redeemed your joining kit. Here’s your order summary.")
+            return redirect('orders:summary')  # ✅ Replace with correct view name in your urls.py
 
         # 🚀 Generate and assign OTP
         otp = generate_otp()
@@ -41,7 +56,7 @@ def login_view(request):
         user.save()
         request.session['otp'] = otp
 
-        # 🔑 Assign or reuse redemption code
+        # 🔑 Assign unique code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
         if code_obj and code_obj.assigned_time:
@@ -51,7 +66,7 @@ def login_view(request):
                 code_obj.save()
                 return render(request, "accounts/link_expired.html", {"email": email})
 
-        # If no usable code exists, assign a new one
+        # Assign fresh unused code
         if not code_obj:
             code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
             if code_obj:
@@ -59,18 +74,19 @@ def login_view(request):
                 code_obj.assigned_time = timezone.now()
                 code_obj.save()
 
-        # Final fallback: still no code
+        # Still no code
         if not code_obj:
             return render(request, 'accounts/link_expired.html', {
                 'email': email,
                 'error': 'No unique codes available at the moment.'
             })
 
-        # 📧 Send OTP + code via email
+        # 📧 Send OTP + code
         context = {
             'otp': otp,
             'unique_code': code_obj.code,
         }
+
         html_message = render_to_string('emails/welcome.html', context)
         plain_message = render_to_string('emails/welcome.txt', context)
 
@@ -82,9 +98,10 @@ def login_view(request):
             html_message=html_message,
         )
 
-        return render(request, 'accounts/verify.html', {'email': email})
+        return redirect('accounts:verify')  # 🔄 Use redirect instead of render to avoid resubmission issues
 
     return render(request, 'accounts/login.html')
+
 
 
 def new_user(request):
