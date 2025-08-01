@@ -8,9 +8,11 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from datetime import timedelta
 import random
-
-from accounts.models import CustomUser as User, UniqueCode
+from django.contrib.auth import get_user_model
+from .otp_utils import generate_otp
 from orders.models import Order
+from .models import UniqueCode
+from accounts.models import CustomUser as User, UniqueCode
 
 
 # Utility: OTP generation
@@ -19,21 +21,6 @@ def generate_otp():
 
 User = get_user_model()
 
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils import timezone
-from datetime import timedelta
-from django.conf import settings
-from django.contrib.auth import get_user_model
-
-from .utils import generate_otp
-from orders.models import Order
-from .models import UniqueCode
-
-User = get_user_model()
 
 def login_view(request):
     if request.method == 'POST':
