@@ -27,7 +27,7 @@ from django.conf import settings
 
 def login_view(request):
     next_url = request.POST.get('next') or request.GET.get('next') or '/'
-    
+
     if request.method == 'POST':
         email = request.POST.get('email')
 
@@ -37,22 +37,23 @@ def login_view(request):
                 'next': next_url
             })
 
+        # ✅ Get or create user
         user, _ = User.objects.get_or_create(email=email)
         request.session['email'] = email
 
-        # ✅ If order already placed, redirect to order summary
+        # ✅ If order already placed, log them in and go to summary
         if Order.objects.filter(user=user).exists():
             login(request, user)
             messages.info(request, "You’ve already redeemed your joining kit. Here’s your order summary.")
             return redirect('orders:summary')
 
-        # 🚀 Generate and assign OTP
+        # 🚀 For new users — start OTP process
         otp = generate_otp()
         user.otp = otp
         user.save()
         request.session['otp'] = otp
 
-        # 🔑 Assign or reuse redemption code
+        # 🔑 Assign unique code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
         if code_obj and code_obj.assigned_time:
@@ -75,11 +76,12 @@ def login_view(request):
                 'error': 'No unique codes available at the moment.'
             })
 
-        # 📧 Send OTP
+        # 📧 Send OTP email
         context = {
             'otp': otp,
             'unique_code': code_obj.code,
         }
+
         html_message = render_to_string('emails/welcome.html', context)
         plain_message = render_to_string('emails/welcome.txt', context)
 
@@ -91,10 +93,11 @@ def login_view(request):
             html_message=html_message,
         )
 
-        return redirect('accounts:verify')  # No 'next' here — handled after verify
+        # Redirect to verify page
+        return redirect('accounts:verify')
 
+    # GET request
     return render(request, 'accounts/login.html', {'next': next_url})
-
 
 def new_user(request):
 
