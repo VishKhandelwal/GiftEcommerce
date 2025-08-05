@@ -20,8 +20,19 @@ from django.shortcuts import render, redirect
 @login_required(login_url='accounts:login')
 def order_summary_view(request):
     latest_order = Order.objects.filter(user=request.user).last()
+
+    if not latest_order:
+        return render(request, 'orders/summary.html', {
+            'order': None,
+            'items': [],
+        })
+
+    # Fetch associated order items using related_name='items'
+    items = latest_order.items.select_related('product').all()
+
     return render(request, 'orders/summary.html', {
-        'order': latest_order
+        'order': latest_order,
+        'items': items,
     })
 
 
