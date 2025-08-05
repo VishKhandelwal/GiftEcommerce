@@ -78,7 +78,7 @@ def login_view(request):
             })
 
         # 📧 Send OTP + code
-        send_otp(email, otp, code_obj.code)
+        send_otp(email)
 
         request.session['next'] = next_url  # store next in session
         return redirect('accounts:verify')  # 👈 Only if new user or no order
