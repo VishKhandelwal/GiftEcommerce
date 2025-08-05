@@ -39,22 +39,22 @@ def login_view(request):
                 'next': next_url
             })
 
-        user, _ = User.objects.get_or_create(email=email)
+        # Check if user already exists
+        user, created = User.objects.get_or_create(email=email)
         request.session['email'] = email
 
-        # ✅ Existing user who already placed order — redirect to summary
+        # ✅ If user already has placed an order — directly login and redirect to summary
         if Order.objects.filter(user=user).exists():
-            login(request, user)
+            login(request, user)  # log in the user
             return redirect('orders:summary')
 
-        # 🚀 OTP flow for new user
+        # 🚀 Else: Begin OTP verification flow
         otp = generate_otp()
         user.otp = otp
         user.save()
         request.session['otp'] = otp
-        request.session['next'] = next_url
 
-        # 🔑 Assign unique code
+        # Assign redemption code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
 
         if code_obj and code_obj.assigned_time:
@@ -77,23 +77,11 @@ def login_view(request):
                 'error': 'No unique codes available at the moment.'
             })
 
-        # 📧 Send OTP email
-        context = {
-            'otp': otp,
-            'unique_code': code_obj.code,
-        }
-        html_message = render_to_string('emails/welcome.html', context)
-        plain_message = render_to_string('emails/welcome.txt', context)
+        # 📧 Send OTP + code
+        send_otp(email, otp, code_obj.code)
 
-        send_mail(
-            subject="🎁 Redeem Your Gift Hamper - Team Infinity",
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            html_message=html_message,
-        )
-
-        return redirect('accounts:verify')
+        request.session['next'] = next_url  # store next in session
+        return redirect('accounts:verify')  # 👈 Only if new user or no order
 
     return render(request, 'accounts/login.html', {'next': next_url})
             
