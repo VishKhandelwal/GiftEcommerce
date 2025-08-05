@@ -93,7 +93,7 @@ def login_view(request):
             html_message=html_message,
         )
 
-        return redirect('accounts:verify')
+        return redirect('accounts:verify_otp')
 
     return render(request, 'accounts/login.html', {'next': next_url})
             
