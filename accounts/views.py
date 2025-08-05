@@ -46,7 +46,8 @@ def login_view(request):
         if Order.objects.filter(user=user).exists():
             login(request, user)
             order = Order.objects.filter(user=user).latest('created_at')
-            order_items = order.items.all()  # adjust based on your related_name
+            order_items = order.order_items.all()  # ✅ correct reverse relationship
+
 
             return render(request, 'accounts/login.html', {
                 'email': email,
