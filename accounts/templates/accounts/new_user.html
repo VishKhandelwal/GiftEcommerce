@@ -59,11 +59,7 @@
     <div class="col-md-6">
       <h2 class="text-center mb-4">Join Infinity</h2>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+
 
       <form method="POST" action="{% url 'accounts:new_user' %}">
         {% csrf_token %}
