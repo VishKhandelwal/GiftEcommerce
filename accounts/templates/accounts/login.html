@@ -11,7 +11,7 @@
       padding: 50px;
     }
     .login-box {
-      width: 300px;
+      width: 350px;
       margin: auto;
       padding: 30px;
       border: 1px solid #ccc;
@@ -30,18 +30,27 @@
       border: none;
       border-radius: 6px;
     }
-    .alert {
-      margin-top: 10px;
+    .order-summary {
+      margin-top: 30px;
+      text-align: left;
+    }
+    .order-summary h4 {
+      margin-bottom: 10px;
+    }
+    .order-summary ul {
+      list-style: none;
+      padding: 0;
+    }
+    .order-summary ul li {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .message {
+      background-color: #d9f5f5;
+      color: #105d5d;
       padding: 10px;
+      margin: 15px 0;
       border-radius: 5px;
-    }
-    .alert-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .alert-info {
-      background-color: #d1ecf1;
-      color: #0c5460;
     }
   </style>
 </head>
@@ -49,24 +58,34 @@
   <div class="login-box">
     <h2>Login</h2>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
+    {% if message %}
+      <div class="message">{{ message }}</div>
     {% endif %}
 
-    {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
-    <form method="post">
-      {% csrf_token %}
-      <input type="email" name="email" placeholder="Enter your email" required>
-      {% if next %}
+    {% if not order %}
+      <form method="post">
+        {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
-      {% endif %}
-      <button type="submit">Login</button>
-    </form>
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Login</button>
+        {% if error %}
+          <div style="color: red; margin-top: 10px;">{{ error }}</div>
+        {% endif %}
+      </form>
+    {% endif %}
+
+    {% if order %}
+      <div class="order-summary">
+        <h4>📦 Hamper Ordered:</h4>
+        <ul>
+          {% for item in order_items %}
+            <li>{{ item.product.name }} × {{ item.quantity }}</li>
+          {% endfor %}
+        </ul>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Placed on:</strong> {{ order.created_at|date:"F j, Y" }}</p>
+      </div>
+    {% endif %}
   </div>
 </body>
 </html>

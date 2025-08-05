@@ -25,7 +25,7 @@ User = get_user_model()
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.conf import settings
 
-from orders.models import Order, OrderItem  # or however your order items are structured
+from orders.models import Order
 
 def login_view(request):
     next_url = request.POST.get('next') or request.GET.get('next') or '/'
@@ -42,13 +42,68 @@ def login_view(request):
         user, _ = User.objects.get_or_create(email=email)
         request.session['email'] = email
 
-        # ✅ If user has already placed an order, show summary inside login page
+        # ✅ Already placed order → show summary directly
         if Order.objects.filter(user=user).exists():
             login(request, user)
             order = Order.objects.filter(user=user).latest('created_at')
-            order_items = order.items.all()  # or use related_name if different
+            order_items = order.items.all()  # adjust based on your related_name
 
-            return render(request, 'accounts/login.html')
+            return render(request, 'accounts/login.html', {
+                'email': email,
+                'message': "You’ve already redeemed your joining kit. Here’s your order summary.",
+                'order': order,
+                'order_items': order_items
+            })
+
+        # 🚀 OTP flow (new user)
+        otp = generate_otp()
+        user.otp = otp
+        user.save()
+        request.session['otp'] = otp
+
+        # Assign or reuse code
+        code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
+
+        if code_obj and code_obj.assigned_time:
+            expiry_time = code_obj.assigned_time + timedelta(days=14)
+            if timezone.now() > expiry_time:
+                code_obj.is_used = True
+                code_obj.save()
+                return render(request, "accounts/link_expired.html", {"email": email})
+
+        if not code_obj:
+            code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
+            if code_obj:
+                code_obj.assigned_to = email
+                code_obj.assigned_time = timezone.now()
+                code_obj.save()
+
+        if not code_obj:
+            return render(request, 'accounts/link_expired.html', {
+                'email': email,
+                'error': 'No unique codes available at the moment.'
+            })
+
+        # Send OTP email
+        context = {
+            'otp': otp,
+            'unique_code': code_obj.code,
+        }
+        html_message = render_to_string('emails/welcome.html', context)
+        plain_message = render_to_string('emails/welcome.txt', context)
+
+        send_mail(
+            subject="🎁 Redeem Your Gift Hamper - Team Infinity",
+            message=plain_message,
+            from_email=None,
+            recipient_list=[email],
+            html_message=html_message,
+        )
+
+        return redirect('accounts:verify')  # or however you handle verify page
+
+    return render(request, 'accounts/login.html', {'next': next_url})
+
             
 
 def new_user(request):
