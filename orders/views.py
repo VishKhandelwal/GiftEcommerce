@@ -22,19 +22,22 @@ from .models import Order, OrderItem
 
 
 def order_summary_view(request):
-    if not request.user.is_authenticated:
-        return redirect('accounts:login')  # or your login URL
+    user = request.user
 
-    latest_order = Order.objects.filter(user=request.user).last()
+    # Get the most recent order for this user
+    latest_order = Order.objects.filter(user=user).order_by('-created_at').first()
+
     if not latest_order:
-        return render(request, 'orders/summary.html', {'error': 'No orders found.'})
+        return render(request, 'orders/summary.html', {
+            'error': 'No order found for this user.'
+        })
 
-    # Fetch all items related to that order
+    # Get all hamper items (products) in that order
     hamper_items = OrderItem.objects.filter(order=latest_order)
 
     return render(request, 'orders/summary.html', {
         'order': latest_order,
-        'hamper_items': hamper_items,
+        'hamper_items': hamper_items
     })
 
 
