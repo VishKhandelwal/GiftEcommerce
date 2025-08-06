@@ -33,13 +33,12 @@ def order_summary_view(request):
         })
 
     # Get all hamper items (products) in that order
-    hamper_items = OrderItem.objects.filter(order=latest_order)
+    hamper_items = latest_order.items.all()
 
     return render(request, 'orders/summary.html', {
         'order': latest_order,
         'hamper_items': hamper_items
     })
-
 
 
 def track_order_view(request):
