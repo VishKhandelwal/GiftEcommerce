@@ -19,21 +19,17 @@ from django.shortcuts import render, redirect
 
 @login_required(login_url='accounts:login')
 def order_summary_view(request):
-    latest_order = Order.objects.filter(user=request.user).last()
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
 
-    if not latest_order:
-        return render(request, 'orders/summary.html', {
-            'order': None,
-            'items': [],
-        })
-
-    # Fetch associated order items using related_name='items'
-    items = latest_order.items.select_related('product').all()
+    order = Order.objects.filter(user=request.user).last()
+    items = order.items.all() if order else []
 
     return render(request, 'orders/summary.html', {
-        'order': latest_order,
+        'order': order,
         'items': items,
     })
+
 
 
 def track_order_view(request):

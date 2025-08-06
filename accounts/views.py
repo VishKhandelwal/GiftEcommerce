@@ -28,56 +28,20 @@ from django.conf import settings
 from orders.models import Order
 
 def login_view(request):
-    next_url = request.POST.get('next') or request.GET.get('next') or '/'
-
     if request.method == 'POST':
         email = request.POST.get('email')
         if not email:
-            return render(request, 'accounts/login.html', {
-                'error': 'Email is required',
-                'next': next_url
-            })
+            return render(request, 'accounts/login.html', {'error': 'Email is required'})
 
-        user, created = User.objects.get_or_create(email=email)
+        user, _ = User.objects.get_or_create(email=email)
         request.session['email'] = email
+        login(request, user)
 
-        # ✅ If user already placed an order, log them in and redirect to summary
-        if Order.objects.filter(user=user).exists():
-            login(request, user)
-            return redirect('orders:summary')
+        return redirect('orders:summary')  # 👈 Always go to summary
 
-        # 🚀 Else: OTP flow
-        otp = generate_otp()
-        user.otp = otp
-        user.save()
-        request.session['otp'] = otp
+    return render(request, 'accounts/login.html')
 
-        # Assign redemption code
-        code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
-        if code_obj and code_obj.assigned_time:
-            expiry_time = code_obj.assigned_time + timedelta(days=14)
-            if timezone.now() > expiry_time:
-                code_obj.is_used = True
-                code_obj.save()
-                return render(request, "accounts/link_expired.html", {"email": email})
 
-        if not code_obj:
-            code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
-            if code_obj:
-                code_obj.assigned_to = email
-                code_obj.assigned_time = timezone.now()
-                code_obj.save()
-
-        if not code_obj:
-            return render(request, 'accounts/link_expired.html', {
-                'email': email,
-                'error': 'No unique codes available right now.'
-            })
-
-        request.session['next'] = next_url
-        return redirect('accounts:verify')  # 🟢 Only if user is new or has not ordered
-
-    return render(request, 'accounts/login.html', {'next': next_url})
             
 
 def new_user(request):

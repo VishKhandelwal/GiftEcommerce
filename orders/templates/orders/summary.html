@@ -8,27 +8,23 @@
   {% endif %}
 
   {% if order %}
-    <p><strong>Order ID:</strong> {{ order.id }}</p>
-    <p><strong>Status:</strong> {{ order.status }}</p>
-  {% else %}
-    <p>No order found.</p>
-  {% endif %}
+  <p><strong>Order ID:</strong> {{ order.id }}</p>
+  <p><strong>Status:</strong> {{ order.status }}</p>
 
-  {% if items %}
-    <h4 class="mt-4">Your Hampers:</h4>
-    <ul class="list-group">
-      {% for item in items %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {{ item.product.name }}
-          <span class="badge bg-primary rounded-pill">x{{ item.quantity }}</span>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No hamper items found.</p>
-  {% endif %}
+  <h4>Items in your Hamper:</h4>
+  <ul>
+    {% for item in items %}
+      <li>{{ item.product.name }}</li>
+    {% empty %}
+      <li>No items found in this order.</li>
+    {% endfor %}
+  </ul>
 
   <div class="text-center my-3">
   <a href="{% url 'orders:track_order' %}" class="btn btn-info">Track Order</a>
-</div>
+  </div>
+{% else %}
+  <p>No order found for this user.</p>
+{% endif %}
+  
 {% endblock %}
