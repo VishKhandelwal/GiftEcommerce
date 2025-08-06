@@ -11,14 +11,14 @@
   <p><strong>Order ID:</strong> {{ order.id }}</p>
   <p><strong>Status:</strong> {{ order.status }}</p>
 
-  <h4>Items in your Hamper:</h4>
-  <ul>
-    {% for item in items %}
-      <li>{{ item.product.name }}</li>
-    {% empty %}
-      <li>No items found in this order.</li>
-    {% endfor %}
-  </ul>
+  <h3>Your Hamper Includes:</h3>
+<ul>
+  {% for item in hamper_items %}
+    <li>{{ item.product.name }} (Qty: {{ item.quantity }})</li>
+  {% empty %}
+    <li>No items found in your hamper.</li>
+  {% endfor %}
+</ul>
 
   <div class="text-center my-3">
   <a href="{% url 'orders:track_order' %}" class="btn btn-info">Track Order</a>

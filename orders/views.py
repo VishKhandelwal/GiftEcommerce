@@ -16,18 +16,25 @@ from django.contrib import admin
 from .models import Order
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from .models import Order, OrderItem
 
 @login_required(login_url='accounts:login')
+
+
 def order_summary_view(request):
     if not request.user.is_authenticated:
-        return redirect('accounts:login')
+        return redirect('accounts:login')  # or your login URL
 
-    order = Order.objects.filter(user=request.user).last()
-    items = order.items.all() if order else []
+    latest_order = Order.objects.filter(user=request.user).last()
+    if not latest_order:
+        return render(request, 'orders/summary.html', {'error': 'No orders found.'})
+
+    # Fetch all items related to that order
+    hamper_items = OrderItem.objects.filter(order=latest_order)
 
     return render(request, 'orders/summary.html', {
-        'order': order,
-        'items': items,
+        'order': latest_order,
+        'hamper_items': hamper_items,
     })
 
 
