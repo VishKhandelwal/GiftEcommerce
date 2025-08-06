@@ -38,21 +38,21 @@ def login_view(request):
                 'next': next_url
             })
 
-        user, _ = User.objects.get_or_create(email=email)
+        user, created = User.objects.get_or_create(email=email)
         request.session['email'] = email
 
-        # ✅ Already ordered → login + redirect to summary
+        # ✅ If user already placed an order, log them in and redirect to summary
         if Order.objects.filter(user=user).exists():
             login(request, user)
             return redirect('orders:summary')
 
-        # 🚀 Else: generate OTP and store
+        # 🚀 Else: OTP flow
         otp = generate_otp()
         user.otp = otp
         user.save()
         request.session['otp'] = otp
 
-        # 🔑 Assign unique code
+        # Assign redemption code
         code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
         if code_obj and code_obj.assigned_time:
             expiry_time = code_obj.assigned_time + timedelta(days=14)
@@ -74,10 +74,8 @@ def login_view(request):
                 'error': 'No unique codes available right now.'
             })
 
-        # ✅ Skip sending OTP via email
         request.session['next'] = next_url
-
-        return redirect('accounts:verify')
+        return redirect('accounts:verify')  # 🟢 Only if user is new or has not ordered
 
     return render(request, 'accounts/login.html', {'next': next_url})
             
