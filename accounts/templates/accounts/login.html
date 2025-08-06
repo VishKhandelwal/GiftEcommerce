@@ -73,13 +73,6 @@
       <div class="alert">{{ error }}</div>
     {% endif %}
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
-          {{ message }}
-        </div>
-      {% endfor %}
-    {% endif %}
   </div>
 </body>
 </html>
