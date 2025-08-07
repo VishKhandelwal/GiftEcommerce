@@ -1,40 +1,101 @@
 {% extends 'base.html' %}
+
 {% block content %}
-  <div class="container mt-5">
-    <h2 class="text-center">📦 Order Summary</h2>
+<div class="container mt-5">
+  <h2 class="text-center">📦 Order Summary</h2>
 
-    {% if request.session.already_redeemed %}
-      <div class="alert alert-info text-center mt-3">
-        You’ve already redeemed your joining kit. Below is your order summary.
-      </div>
-    {% endif %}
+  {% if request.session.already_redeemed %}
+    <div class="alert alert-info text-center mt-3">
+      You’ve already redeemed your joining kit. Below is your order summary.
+    </div>
+  {% endif %}
 
-    {% if order %}
-      <div class="mt-4">
-        <p><strong>Order ID:</strong> {{ order.id }}</p>
-        <p><strong>Status:</strong> {{ order.status|capfirst }}</p>
-      </div>
+  {% if order %}
+    <div class="mt-4">
+      <p><strong>Order ID:</strong> {{ order.id }}</p>
+      <p><strong>Status:</strong> {{ order.status|capfirst }}</p>
+    </div>
 
-      <h4 class="mt-4">🎁 Your Hamper Includes:</h4>
-      <ul class="list-group">
-        {% for item in hamper_items %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ item.product.name }}
-            <span class="badge bg-primary rounded-pill">Qty: {{ item.quantity }}</span>
-          </li>
-        {% empty %}
-          <li class="list-group-item">No items found in your hamper.</li>
-        {% endfor %}
-      </ul>
+    <h4 class="mt-4">🎁 Your Hamper Includes:</h4>
 
-      <div class="text-center mt-4">
-        <a href="{% url 'orders:track_order' %}" class="btn btn-info">📍 Track Order</a>
-      </div>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Item Type</th>
+          <th>Selection</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Box</td>
+          <td>
+            {% if selected_items.Box %}
+              {{ selected_items.Box.product.name }}
+            {% else %}
+              Not selected
+            {% endif %}
+          </td>
+          <td><a href="{% url 'products:choose_box' %}" class="btn btn-sm btn-primary">Box</a></td>
+        </tr>
+        <tr>
+          <td>Bottles</td>
+          <td>
+            {% if selected_items.Bottles %}
+              {{ selected_items.Bottles.product.name }}
+            {% else %}
+              Not selected
+            {% endif %}
+          </td>
+          <td><a href="{% url 'products:choose_items' %}?category=Bottles" class="btn btn-sm btn-primary">Bottles</a></td>
+        </tr>
+        <tr>
+          <td>T-shirts</td>
+          <td>
+            {% if selected_items.Tshirts %}
+              {{ selected_items.Tshirts.product.name }}
+            {% else %}
+              Not selected
+            {% endif %}
+          </td>
+          <td><a href="{% url 'products:choose_items' %}?category=T-shirts" class="btn btn-sm btn-primary">T-shirts</a></td>
+        </tr>
+        <tr>
+          <td>Notebooks</td>
+          <td>
+            {% if selected_items.Notebooks %}
+              {{ selected_items.Notebooks.product.name }}
+            {% else %}
+              Not selected
+            {% endif %}
+          </td>
+          <td><a href="{% url 'products:choose_items' %}?category=Notebooks" class="btn btn-sm btn-primary">Notebooks</a></td>
+        </tr>
+        <tr>
+          <td>Auto-included</td>
+          <td colspan="2">
+            {% if selected_items.AutoIncluded %}
+              <ul>
+                {% for item in selected_items.AutoIncluded %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p>No auto-included items.</p>
+            {% endif %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    {% else %}
-      <div class="alert alert-warning text-center mt-4">
-        No order found for this user.
-      </div>
-    {% endif %}
-  </div>
+    <div class="text-center mt-4">
+      <a href="{% url 'orders:track_order' %}" class="btn btn-info">📍 Track Order</a>
+    </div>
+
+  {% else %}
+    <div class="alert alert-warning text-center mt-4">
+      No order found for this user.
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
