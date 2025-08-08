@@ -27,17 +27,88 @@ from django.conf import settings
 
 from orders.models import Order
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.contrib.auth import login
+
+from .models import User, UniqueCode
+from orders.models import Order
+from .utils import generate_otp  # Your OTP generator
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
+        otp_entered = request.POST.get('otp')
+
+        # Step 1: If OTP is entered, verify it
+        if otp_entered:
+            session_email = request.session.get('email')
+            session_otp = request.session.get('otp')
+
+            if not session_email or otp_entered != session_otp:
+                messages.error(request, "Invalid or expired OTP.")
+                return redirect('accounts:login')
+
+            user = User.objects.filter(email=session_email).first()
+            if not user:
+                messages.error(request, "User not found.")
+                return redirect('accounts:login')
+
+            login(request, user)
+            return redirect('orders:summary')
+
+        # Step 2: If only email is entered, start login process
         if not email:
-            return render(request, 'accounts/login.html', {'error': 'Email is required'})
+            messages.error(request, "Email is required.")
+            return redirect('accounts:login')
 
-        user, _ = User.objects.get_or_create(email=email)
+        user = User.objects.filter(email=email).first()
+
+        # Existing user with order → go to summary
+        if user and Order.objects.filter(user=user).exists():
+            login(request, user)
+            return redirect('orders:summary')
+
+        # If user doesn't exist, create one
+        if not user:
+            user = User.objects.create(email=email)
+
+        # Generate and store OTP in session
+        otp = generate_otp()
         request.session['email'] = email
-        login(request, user)
+        request.session['otp'] = otp
 
-        return redirect('orders:summary')  # 👈 Always go to summary
+        # Assign unique code if needed
+        code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
+        if not code_obj:
+            code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
+            if code_obj:
+                code_obj.assigned_to = email
+                code_obj.assigned_time = timezone.now()
+                code_obj.save()
+
+        # Send OTP email
+        context = {
+            'otp': otp,
+            'unique_code': code_obj.code if code_obj else None,
+        }
+        html_message = render_to_string('emails/welcome.html', context)
+        plain_message = render_to_string('emails/welcome.txt', context)
+
+        send_mail(
+            subject="🔑 Your OTP - Team Infinity",
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            html_message=html_message,
+        )
+
+        messages.info(request, "OTP sent to your email. Please enter it below.")
+        return render(request, 'accounts/login.html', {'email': email, 'otp_sent': True})
 
     return render(request, 'accounts/login.html')
 

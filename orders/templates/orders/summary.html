@@ -23,7 +23,6 @@
       <thead>
         <tr>
           <th>Product Name</th>
-          <th>Category</th>
           <th>Quantity</th>
         </tr>
       </thead>
@@ -31,7 +30,6 @@
         {% for item in hamper_items %}
           <tr>
             <td>{{ item.product.name }}</td>
-            <td>{{ item.product.type }}</td>
             <td>{{ item.quantity }}</td>
           </tr>
         {% empty %}
