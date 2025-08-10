@@ -11,8 +11,8 @@ import random
 from django.contrib.auth import get_user_model
 from .otp_utils import generate_otp, send_otp
 from orders.models import Order
-from .models import UniqueCode
 from accounts.models import CustomUser as User, UniqueCode
+from django.utils.http import url_has_allowed_host_and_scheme
 
 
 # Utility: OTP generation
@@ -20,24 +20,6 @@ def generate_otp():
     return str(random.randint(100000, 999999))
 
 User = get_user_model()
-
-
-from django.utils.http import url_has_allowed_host_and_scheme
-from django.conf import settings
-
-from orders.models import Order
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.utils import timezone
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.conf import settings
-from django.contrib.auth import login
-
-from .models import User, UniqueCode
-from orders.models import Order
-from .utils import generate_otp  # Your OTP generator
 
 def login_view(request):
     if request.method == 'POST':
