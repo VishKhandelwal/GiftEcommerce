@@ -68,7 +68,7 @@ def login_view(request):
         # Send OTP email (only OTP, no extra text)
         send_mail(
             subject="Your OTP - Team Infinity",
-            message=f"Your OTP is: {otp}",
+            message=f"Hey {email},\n\nYour OTP is: {otp} \n\nThanks, \n\nThe Infinity Box Team.",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
         )
