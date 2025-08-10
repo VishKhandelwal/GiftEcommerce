@@ -26,7 +26,7 @@ def login_view(request):
         email = request.POST.get('email')
         otp_entered = request.POST.get('otp')
 
-        # Step 1: If OTP is entered, verify it
+        # Step 1: OTP verification
         if otp_entered:
             session_email = request.session.get('email')
             session_otp = request.session.get('otp')
@@ -40,53 +40,37 @@ def login_view(request):
                 messages.error(request, "User not found.")
                 return redirect('accounts:login')
 
+            # OTP valid → log in
             login(request, user)
             return redirect('orders:summary')
 
-        # Step 2: If only email is entered, start login process
+        # Step 2: Email input
         if not email:
             messages.error(request, "Email is required.")
             return redirect('accounts:login')
 
         user = User.objects.filter(email=email).first()
 
-        # Existing user with order → go to summary
+        # Existing user with order → skip OTP
         if user and Order.objects.filter(user=user).exists():
             login(request, user)
             return redirect('orders:summary')
 
-        # If user doesn't exist, create one
+        # Create new user if not exists
         if not user:
             user = User.objects.create(email=email)
 
-        # Generate and store OTP in session
+        # Generate & store OTP in session
         otp = generate_otp()
         request.session['email'] = email
         request.session['otp'] = otp
 
-        # Assign unique code if needed
-        code_obj = UniqueCode.objects.filter(assigned_to=email, is_used=False).first()
-        if not code_obj:
-            code_obj = UniqueCode.objects.filter(assigned_to__isnull=True, is_used=False).first()
-            if code_obj:
-                code_obj.assigned_to = email
-                code_obj.assigned_time = timezone.now()
-                code_obj.save()
-
-        # Send OTP email
-        context = {
-            'otp': otp,
-            'unique_code': code_obj.code if code_obj else None,
-        }
-        html_message = render_to_string('emails/welcome.html', context)
-        plain_message = render_to_string('emails/welcome.txt', context)
-
+        # Send OTP email (only OTP, no extra text)
         send_mail(
-            subject="🔑 Your OTP - Team Infinity",
-            message=plain_message,
+            subject="Your OTP - Team Infinity",
+            message=f"Your OTP is: {otp}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
-            html_message=html_message,
         )
 
         messages.info(request, "OTP sent to your email. Please enter it below.")
